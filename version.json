@@ -1,6 +1,6 @@
 {
-  "version": "0.13.4",
+  "version": "0.13.5",
   "releasedAt": "2026-07-19T00:00:00Z",
-  "notes": "DXF Unicode UTF-8 giữ nguyên tiếng Việt; C# tạo DWG R2000 với chữ dạng đường bao và sidecar JSON.",
+  "notes": "DXF luôn giữ TEXT; DWG mặc định xuất nhanh không vector hóa chữ.",
   "downloadUrl": ""
 }
