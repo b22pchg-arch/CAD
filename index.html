@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+<title>DWG Sketch PWA Editor V0.11.0</title>
+<style>
+:root{color-scheme:dark;--bg:#202124;--panel:#292a2d;--line:#45464a;--text:#f1f3f4;--muted:#aeb0b4;--accent:#4fc3f7;--orange:#ffb74d;--danger:#ef5350;--ok:#66bb6a}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);touch-action:none}
+body{display:grid;grid-template-rows:auto 1fr auto auto}.toolbar{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:6px;background:#303134;border-bottom:1px solid var(--line);z-index:5}
+button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small-btn{border:1px solid #5f6368;background:#3c4043;color:#fff;border-radius:4px;padding:6px 9px;cursor:pointer}.toolbar button:hover,.button:hover,.small-btn:hover{background:#4b4f52}.toolbar button.active{outline:2px solid var(--accent);background:#37474f}.toolbar button:disabled{opacity:.45;cursor:not-allowed}.toolbar .spacer{flex:1}.tool-group{display:flex;gap:3px;align-items:center;border-right:1px solid #5f6368;padding-right:5px}.tool-group:last-child{border-right:0}
+.layout{min-height:0;display:grid;grid-template-columns:235px 1fr 330px}.layout.hide-left{grid-template-columns:0 1fr 330px}.layout.hide-right{grid-template-columns:235px 1fr 0}.layout.hide-left.hide-right{grid-template-columns:0 1fr 0}
+.panel{min-width:0;overflow:auto;background:var(--panel);padding:9px}.panel.left{border-right:1px solid var(--line)}.panel.right{border-left:1px solid var(--line)}.layout.hide-left .left,.layout.hide-right .right{visibility:hidden;padding:0;overflow:hidden}
+.viewer{position:relative;min-width:0;min-height:0;background:var(--bg);touch-action:none}canvas{display:block;width:100%;height:100%;cursor:crosshair;touch-action:none}.drop{display:none;position:absolute;inset:20px;border:3px dashed var(--accent);background:#10242ecc;place-items:center;font-size:22px;z-index:3}.viewer.dragging .drop{display:grid}.snap-label{display:none;position:absolute;pointer-events:none;background:#006064;color:#fff;padding:2px 5px;border-radius:3px;font-size:11px;z-index:4}
+.section{border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}.section h3{font-size:14px;margin:0 0 8px}.muted{color:var(--muted);font-size:12px}.layer-row{display:flex;gap:7px;align-items:center;padding:3px 0;word-break:break-all}.layer-actions{display:flex;gap:5px;margin-bottom:7px}.layer-actions button{padding:3px 7px}.badge{display:inline-block;background:#3c4043;border-radius:10px;padding:2px 7px;margin:2px 3px 2px 0;font-size:11px}.badge.dirty{background:#6d4c41}.badge.ok{background:#2e7d32}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.form-grid .full{grid-column:1/-1}.form-grid label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted)}.form-grid input,.form-grid select,.form-grid textarea,.commandbar input{width:100%;border:1px solid #5f6368;background:#202124;color:#fff;border-radius:4px;padding:6px}.form-grid textarea{resize:vertical;min-height:58px}.button-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.button-row button{border:1px solid #5f6368;background:#3c4043;color:#fff;border-radius:4px;padding:6px 8px;cursor:pointer}.button-row button.danger{border-color:#b71c1c}.button-row button.primary{border-color:#0288d1}
+.status{padding:4px 9px;background:#303134;border-top:1px solid var(--line);font-size:12px;display:flex;justify-content:space-between;gap:10px}.status span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.commandbar{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:7px;align-items:center;padding:5px 8px;background:#252629;border-top:1px solid var(--line)}.commandbar label{font-size:12px;color:var(--muted)}.commandbar button{padding:5px 9px;border:1px solid #5f6368;background:#3c4043;color:#fff;border-radius:4px}
+.hidden{display:none!important}.modal{position:fixed;inset:0;background:#0009;display:none;place-items:center;z-index:20;padding:20px}.modal.show{display:grid}.dialog{width:min(520px,100%);max-height:90vh;overflow:auto;background:#303134;border:1px solid #5f6368;border-radius:8px;padding:14px;box-shadow:0 20px 60px #000}.dialog h2{font-size:18px;margin:0 0 12px}.dialog textarea{width:100%;height:140px;background:#202124;color:#fff;border:1px solid #5f6368;border-radius:4px;padding:8px}.dialog .dialog-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}.dialog button{border:1px solid #5f6368;background:#3c4043;color:#fff;border-radius:4px;padding:7px 12px}
+@media(max-width:1050px){.layout{grid-template-columns:0 1fr 0}.left,.right{visibility:hidden;padding:0}.toolbar{max-height:96px;overflow:auto}.tool-group{border-right:0}.commandbar{grid-template-columns:auto 1fr auto auto}.commandbar button{display:none}.commandbar .history-btn{display:block}}
+@media(max-width:600px){body{grid-template-rows:auto 1fr auto auto}.toolbar{padding:4px;gap:3px}.toolbar button{padding:6px 7px;font-size:12px}.status{font-size:10px}.commandbar label{display:none}.commandbar{grid-template-columns:1fr auto auto}.panel{position:absolute;top:0;bottom:0;width:min(88vw,330px);z-index:10;box-shadow:0 0 20px #000}.left{left:0}.right{right:0}.layout:not(.hide-left) .left,.layout:not(.hide-right) .right{visibility:visible}.layout{display:block}.viewer{width:100%;height:100%}}
+@media print{.toolbar,.panel,.status,.commandbar,.snap-label{display:none!important}body{display:block;background:#fff}.layout,.layout.hide-left,.layout.hide-right,.layout.hide-left.hide-right{display:block}.viewer{height:100vh;background:#fff}canvas{width:100%!important;height:100%!important}}
+
+.update-info{margin-top:7px;padding:7px;border:1px solid #45464a;border-radius:5px;background:#202124;word-break:break-word}.update-info.new{border-color:#66bb6a}.update-info.error{border-color:#ef5350}.version-pill{display:inline-block;padding:2px 7px;border-radius:10px;background:#37474f;color:#e1f5fe;font-size:11px}.pwa-toast{position:fixed;right:14px;bottom:74px;max-width:min(420px,90vw);background:#263238;color:#fff;border:1px solid #607d8b;border-radius:7px;padding:10px 12px;z-index:50;box-shadow:0 8px 25px #0008;display:none}.pwa-toast.show{display:block}.pwa-toast button{margin-left:8px;border:1px solid #90a4ae;background:#37474f;color:#fff;border-radius:4px;padding:4px 8px}.install-hidden{display:none!important}
+</style>
+
+<meta name="theme-color" content="#202124">
+<meta name="description" content="Trình xem và chỉnh sửa dự án DWG Sketch JSON, hoạt động offline dưới dạng PWA.">
+<meta name="application-name" content="DWG Sketch PWA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DWG Sketch">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+</head>
+<body>
+<header class="toolbar">
+  <div class="tool-group">
+    <button id="newBtn" title="Tạo dự án mới">Mới</button>
+    <button id="openBtn">Mở JSON</button><input id="fileInput" type="file" accept=".json,.dwgsketch.json,application/json" hidden>
+    <button id="saveBtn">Lưu JSON</button>
+  </div>
+  <div class="tool-group">
+    <button id="undoBtn" title="Ctrl+Z">Undo</button><button id="redoBtn" title="Ctrl+Y">Redo</button>
+    <button id="copyBtn" title="Ctrl+C">Copy</button><button id="pasteBtn" title="Ctrl+V">Paste</button><button id="deleteBtn" title="Delete">Xóa</button>
+  </div>
+  <div class="tool-group" id="tools">
+    <button data-tool="select" class="active">Chọn</button><button data-tool="pan">Kéo nền</button><button data-tool="text">Chữ</button><button data-tool="line">Đường</button><button data-tool="rectangle">Chữ nhật</button><button data-tool="square">Vuông</button><button data-tool="circle">Tròn</button><button data-tool="arc">Cung</button><button data-tool="ellipse">Elip</button><button data-tool="frame">Khung xuất</button>
+  </div>
+  <div class="tool-group"><button id="fitBtn">Zoom toàn bộ</button><button id="leftBtn">Layer</button><button id="rightBtn">Thuộc tính</button><button id="pngBtn">PNG</button><button id="printBtn">In</button><button id="pdfBtn">PDF</button></div>
+  <div class="tool-group"><button id="installPwaBtn" class="install-hidden">Cài PWA</button><button id="checkUpdateBtn">Kiểm tra phiên bản</button><button id="applyUpdateBtn" class="install-hidden">Cập nhật ngay</button></div>
+  <span class="spacer"></span><span class="version-pill">PWA 0.11.0</span><span id="dirtyBadge" class="badge ok">Đã lưu</span>
+</header>
+<main id="layout" class="layout">
+  <aside class="panel left">
+    <div class="section"><h3>Dự án</h3><div id="projectInfo" class="muted">Chưa nạp file. Có thể tạo mới, chọn JSON hoặc kéo thả vào bản vẽ.</div></div>
+    <div class="section"><h3>Layer</h3><div class="layer-actions"><button id="allLayersBtn">Tất cả</button><button id="noLayersBtn">Bỏ tất cả</button></div><div id="layerList"></div></div>
+    <div class="section"><h3>Hiển thị và bắt điểm</h3>
+      <label class="layer-row"><input id="overlayCheck" type="checkbox" checked> Lớp bổ sung</label>
+      <label class="layer-row"><input id="colorCheck" type="checkbox"> Dùng màu DWG</label>
+      <label class="layer-row"><input id="frameCheck" type="checkbox" checked> Hiện khung xuất</label>
+      <label class="layer-row"><input id="darkCheck" type="checkbox" checked> Nền tối</label>
+      <label class="layer-row"><input id="snapCheck" type="checkbox" checked> Bắt điểm</label>
+      <label class="layer-row">Dung sai bắt điểm <input id="snapTolerance" type="number" value="14" min="4" max="50" step="1"></label>
+    </div>
+    <div class="section"><h3>PWA và cập nhật</h3>
+      <div class="muted">Phiên bản đang dùng: <b id="currentVersionText">0.11.0</b></div>
+      <div class="form-grid" style="margin-top:7px"><label class="full">Địa chỉ version.json<input id="updateUrlInput" value="./version.json" autocomplete="off"></label></div>
+      <div class="button-row"><button id="saveUpdateUrlBtn">Lưu địa chỉ</button><button id="panelCheckUpdateBtn">Kiểm tra</button><button id="panelApplyUpdateBtn" class="install-hidden">Cập nhật</button></div>
+      <div id="updateInfo" class="update-info muted">Chưa kiểm tra phiên bản.</div>
+      <div class="muted" style="margin-top:6px">PWA và Service Worker chỉ hoạt động khi mở từ <b>HTTPS</b> hoặc <b>localhost</b>, không hoạt động đầy đủ khi mở trực tiếp bằng đường dẫn file.</div>
+    </div>
+    <div class="section"><h3>Hướng dẫn cảm ứng</h3><div class="muted">Một ngón: chọn/vẽ/kéo theo công cụ. Hai ngón: phóng to, thu nhỏ và dịch chuyển. Nháy đúp chữ để sửa trực tiếp.</div></div>
+  </aside>
+  <section id="viewer" class="viewer">
+    <canvas id="canvas"></canvas><div class="drop">Thả file *.dwgsketch.json vào đây</div><div id="snapLabel" class="snap-label"></div>
+  </section>
+  <aside class="panel right">
+    <div class="section"><h3>Đối tượng được chọn</h3><div id="selectionSummary" class="muted">Bấm vào đối tượng để chọn. Giữ Ctrl/Shift để chọn nhiều.</div></div>
+    <div class="section"><h3>Thuộc tính</h3><div id="propertyForm" class="form-grid"><div class="muted full">Chưa chọn đối tượng.</div></div><div class="button-row"><button id="applyBtn" class="primary">Áp dụng</button><button id="rotateLeftBtn">Xoay −15°</button><button id="rotateRightBtn">Xoay +15°</button></div></div>
+    <div class="section"><h3>Tạo đối tượng mới</h3><div class="form-grid"><label class="full">Nội dung chữ<textarea id="newText">Ghi chú mới</textarea></label><label>Chiều cao chữ<input id="newTextHeight" type="number" value="2.5" step="0.1"></label><label>Góc chữ/cung<input id="newRotation" type="number" value="0" step="1"></label><label>Góc kết thúc cung<input id="newArcEnd" type="number" value="180" step="1"></label><label>Màu<input id="newColor" type="color" value="#ffffff"></label><label>Độ dày nét<input id="newStroke" type="number" value="2" min="0.2" step="0.2"></label></div></div>
+
+    <div class="section"><h3>Xuất ảnh, in và PDF</h3><div class="form-grid">
+      <label class="full">Phạm vi xuất/in/PDF<select id="exportScope"><option value="full">Toàn bộ nội dung bản vẽ</option><option value="frame">Theo khung xuất đã chọn</option></select></label>
+      <label>Nền xuất/in/PDF<select id="exportBgMode"><option value="white">Trắng</option><option value="dark">Tối</option><option value="transparent">Trong suốt (PNG)</option><option value="custom">Màu tùy chọn</option></select></label>
+      <label>Màu nền tùy chọn<input id="exportBgColor" type="color" value="#ffffff"></label>
+      <label>Màu nét/chữ<select id="exportStrokeMode"><option value="original">Giữ màu hiện tại</option><option value="black">Đen</option><option value="white">Trắng</option><option value="custom">Màu tùy chọn</option></select></label>
+      <label>Màu nét/chữ tùy chọn<input id="exportStrokeColor" type="color" value="#000000"></label>
+      <label class="full"><input id="printFrameBorder" type="checkbox"> Hiện đường khung xuất trên ảnh/in/PDF</label>
+    </div><div class="button-row"><button id="panelPngBtn">Xuất PNG</button><button id="panelPrintBtn">In theo lựa chọn</button><button id="panelPdfBtn">Tạo PDF</button></div><div class="muted" style="margin-top:6px">Nếu chọn "Theo khung xuất đã chọn", hãy dùng công cụ <b>Khung xuất</b> để tạo khung trước khi xuất hoặc in. Nút <b>Tạo PDF</b> sẽ mở hộp thoại in của trình duyệt để lưu dưới dạng PDF.</div></div>
+  </aside>
+</main>
+<footer class="status"><span id="statusText">Sẵn sàng</span><span id="coordText">X: 0 · Y: 0</span></footer>
+<div class="commandbar"><label for="commandInput">Lệnh</label><input id="commandInput" autocomplete="off" placeholder="L, REC, SQ, C, A, EL, T, S, P, U, R, CO, PA, SAVE, FIT, DEL…"><button id="previousCommandBtn" class="history-btn" title="Đưa lệnh vừa dùng vào ô lệnh">↑ Lệnh trước</button><button id="repeatCommandBtn" class="history-btn" title="Chạy lại lệnh gần nhất (F3)">Lặp lại (F3)</button><button id="runCommandBtn">Chạy</button></div>
+<div id="textModal" class="modal"><div class="dialog"><h2>Sửa chữ trực tiếp</h2><textarea id="modalText"></textarea><div class="form-grid" style="margin-top:8px"><label>Chiều cao<input id="modalHeight" type="number" step="0.1"></label><label>Góc xoay<input id="modalRotation" type="number" step="1"></label></div><div class="dialog-actions"><button id="modalCancel">Hủy</button><button id="modalApply">Áp dụng</button></div></div></div>
+<div id="pwaToast" class="pwa-toast"><span id="pwaToastText"></span><button id="pwaToastAction" class="install-hidden">Cập nhật</button></div>
+<script>
+'use strict';
+const PWA_APP_VERSION='0.11.0';
+const PWA_VERSION_URL_KEY='DwgSketchPwa.VersionUrl.V1';
+let deferredInstallPrompt=null,pwaRegistration=null,latestVersionInfo=null,reloadingForUpdate=false;
+function parseVersion(v){return String(v||'0').trim().replace(/^v/i,'').split(/[.-]/).map(x=>Number.parseInt(x,10)||0)}
+function compareVersion(a,b){const aa=parseVersion(a),bb=parseVersion(b),n=Math.max(aa.length,bb.length);for(let i=0;i<n;i++){const d=(aa[i]||0)-(bb[i]||0);if(d)return d>0?1:-1}return 0}
+function getVersionUrl(){return localStorage.getItem(PWA_VERSION_URL_KEY)||'./version.json'}
+function setUpdateInfo(message,kind=''){const el=document.getElementById('updateInfo');if(!el)return;el.textContent=message;el.className='update-info muted'+(kind?' '+kind:'')}
+function showPwaToast(message,withUpdate=false){const box=document.getElementById('pwaToast'),txt=document.getElementById('pwaToastText'),btn=document.getElementById('pwaToastAction');if(!box||!txt||!btn)return;txt.textContent=message;btn.classList.toggle('install-hidden',!withUpdate);box.classList.add('show');setTimeout(()=>{if(!withUpdate)box.classList.remove('show')},5000)}
+function showUpdateButtons(show){['applyUpdateBtn','panelApplyUpdateBtn'].forEach(id=>document.getElementById(id)?.classList.toggle('install-hidden',!show))}
+async function checkPwaVersion(manual=true){
+  const url=getVersionUrl();document.getElementById('updateUrlInput').value=url;
+  if(location.protocol==='file:'){setUpdateInfo('Đang mở bằng file://. Hãy chạy qua localhost hoặc HTTPS để kiểm tra và cập nhật PWA.','error');if(manual)alert('PWA không thể kiểm tra/cập nhật đầy đủ khi mở trực tiếp file HTML. Hãy dùng serve_local.cmd hoặc đưa thư mục lên máy chủ HTTPS.');return}
+  setUpdateInfo('Đang kiểm tra phiên bản…');
+  try{
+    const sep=url.includes('?')?'&':'?';const response=await fetch(url+sep+'_='+Date.now(),{cache:'no-store',headers:{'Accept':'application/json'}});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    const info=await response.json();if(!info.version)throw new Error('version.json không có trường version');latestVersionInfo=info;
+    const newer=compareVersion(info.version,PWA_APP_VERSION)>0;
+    if(newer){const notes=info.notes?` — ${info.notes}`:'';setUpdateInfo(`Có phiên bản mới ${info.version}${notes}`,'new');showUpdateButtons(true);showPwaToast(`Đã phát hiện phiên bản mới ${info.version}.`,true);if(pwaRegistration)await pwaRegistration.update()}
+    else{setUpdateInfo(`Đang dùng phiên bản mới nhất ${PWA_APP_VERSION}.`);showUpdateButtons(false);if(manual)showPwaToast('Ứng dụng đang ở phiên bản mới nhất.')}
+  }catch(err){setUpdateInfo('Không kiểm tra được phiên bản: '+err.message,'error');if(manual)showPwaToast('Không kiểm tra được phiên bản. Kiểm tra địa chỉ version.json hoặc kết nối mạng.')}
+}
+async function applyPwaUpdate(){
+  if(!('serviceWorker' in navigator)){alert('Trình duyệt này không hỗ trợ Service Worker.');return}
+  try{
+    pwaRegistration=pwaRegistration||await navigator.serviceWorker.getRegistration();
+    if(pwaRegistration)await pwaRegistration.update();
+    if(pwaRegistration?.waiting){pwaRegistration.waiting.postMessage({type:'SKIP_WAITING'});setUpdateInfo('Đang kích hoạt phiên bản mới…','new');return}
+    const installing=pwaRegistration?.installing;if(installing){setUpdateInfo('Đang tải phiên bản mới…','new');installing.addEventListener('statechange',()=>{if(installing.state==='installed'&&navigator.serviceWorker.controller)installing.postMessage({type:'SKIP_WAITING'})});return}
+    if(latestVersionInfo?.downloadUrl){window.open(latestVersionInfo.downloadUrl,'_blank');return}
+    setUpdateInfo('Đã yêu cầu cập nhật. Nếu máy chủ đã có bộ file mới, ứng dụng sẽ tự tải và khởi động lại.','new');showPwaToast('Đang kiểm tra gói cập nhật trên máy chủ.');
+  }catch(err){setUpdateInfo('Cập nhật thất bại: '+err.message,'error')}
+}
+function wireServiceWorkerRegistration(reg){
+  pwaRegistration=reg;
+  if(reg.waiting&&navigator.serviceWorker.controller){showUpdateButtons(true);showPwaToast('Một phiên bản mới đã tải xong.',true)}
+  reg.addEventListener('updatefound',()=>{const worker=reg.installing;if(!worker)return;worker.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller){showUpdateButtons(true);showPwaToast('Phiên bản mới đã sẵn sàng.',true)}})});
+}
+async function initPwa(){
+  document.getElementById('currentVersionText').textContent=PWA_APP_VERSION;document.getElementById('updateUrlInput').value=getVersionUrl();
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;document.getElementById('installPwaBtn').classList.remove('install-hidden')});
+  window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;document.getElementById('installPwaBtn').classList.add('install-hidden');showPwaToast('Đã cài DWG Sketch PWA.')});
+  if('serviceWorker' in navigator&&location.protocol!=='file:'){try{const reg=await navigator.serviceWorker.register('./sw.js',{scope:'./'});wireServiceWorkerRegistration(reg)}catch(err){setUpdateInfo('Không đăng ký được Service Worker: '+err.message,'error')}}
+  navigator.serviceWorker?.addEventListener('controllerchange',()=>{if(reloadingForUpdate)return;reloadingForUpdate=true;location.reload()});
+}
+async function installPwa(){if(!deferredInstallPrompt){showPwaToast('Trình duyệt chưa cung cấp hộp thoại cài đặt. Có thể dùng menu “Thêm vào màn hình chính”.');return}deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;document.getElementById('installPwaBtn').classList.add('install-hidden')}
+
+const EMBEDDED_PROJECT_BASE64='__EMBEDDED_PROJECT_BASE64__';
+const $=id=>document.getElementById(id);
+const canvas=$('canvas'),ctx=canvas.getContext('2d'),viewer=$('viewer'),layout=$('layout');
+let project=null,entities=[],overlays=[],bounds=null,visibleLayers=new Set(),selected=[];
+let scale=1,offsetX=0,offsetY=0,dpr=1,tool='select',dirty=false,currentFileName='BanVe_DaChinhSua.dwgsketch.json';
+let interaction=null,preview=null,snapPoint=null,clipboard=[],undoStack=[],redoStack=[],actionBefore=null;
+let pointers=new Map(),pinch=null,lastPointer={x:0,y:0};
+const MAX_HISTORY=60;
+const MAX_COMMAND_HISTORY=100;
+const COMMAND_HISTORY_KEY='DwgSketchHtmlEditor.CommandHistory.V1';
+let commandHistory=loadCommandHistory(),commandHistoryIndex=commandHistory.length;
+
+function loadCommandHistory(){try{const raw=JSON.parse(localStorage.getItem(COMMAND_HISTORY_KEY)||'[]');return Array.isArray(raw)?raw.map(x=>String(x||'').trim().toUpperCase()).filter(Boolean).slice(-MAX_COMMAND_HISTORY):[]}catch{return []}}
+function saveCommandHistory(){try{localStorage.setItem(COMMAND_HISTORY_KEY,JSON.stringify(commandHistory.slice(-MAX_COMMAND_HISTORY)))}catch{}}
+function addCommandHistory(cmd){cmd=String(cmd||'').trim().toUpperCase();if(!cmd)return;if(!commandHistory.length||commandHistory[commandHistory.length-1]!==cmd)commandHistory.push(cmd);if(commandHistory.length>MAX_COMMAND_HISTORY)commandHistory.splice(0,commandHistory.length-MAX_COMMAND_HISTORY);commandHistoryIndex=commandHistory.length;saveCommandHistory()}
+function navigateCommandHistory(direction){if(!commandHistory.length){status('Chưa có lịch sử lệnh.');return}commandHistoryIndex=Math.max(0,Math.min(commandHistory.length,commandHistoryIndex+direction));const input=$('commandInput');input.value=commandHistoryIndex>=commandHistory.length?'':commandHistory[commandHistoryIndex];input.focus();input.setSelectionRange(input.value.length,input.value.length)}
+function recallLastCommand(execute=false){if(!commandHistory.length){status('Chưa có lệnh nào để dùng lại.');return}const cmd=commandHistory[commandHistory.length-1],input=$('commandInput');input.value=cmd;input.focus();input.setSelectionRange(cmd.length,cmd.length);if(execute)command(cmd)}
+function num(v,f=0){v=Number(v);return Number.isFinite(v)?v:f}
+function point(p){return{x:num(p?.x??p?.X),y:num(p?.y??p?.Y)}}
+function clone(v){return JSON.parse(JSON.stringify(v))}
+function nowIso(){return new Date().toISOString()}
+function normalizeAngle(a){a=num(a)%360;return a<0?a+360:a}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function midpoint(a,b){return{x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
+function validBounds(b){return b&&Number.isFinite(num(b.minX,NaN))&&Number.isFinite(num(b.maxX,NaN))&&num(b.maxX)>num(b.minX)&&num(b.maxY)>num(b.minY)}
+function normalizeBounds(b){return{minX:num(b.minX),minY:num(b.minY),maxX:num(b.maxX),maxY:num(b.maxY)}}
+function include(b,p){if(!Number.isFinite(p.x)||!Number.isFinite(p.y))return;b.minX=Math.min(b.minX,p.x);b.minY=Math.min(b.minY,p.y);b.maxX=Math.max(b.maxX,p.x);b.maxY=Math.max(b.maxY,p.y)}
+function argbToHex(v){v=Number(v)>>>0;return'#'+(v&0xffffff).toString(16).padStart(6,'0')}
+function hexToArgb(hex){const n=parseInt(String(hex).replace('#',''),16);return(0xff000000|n)>>>0}
+function normalizeProject(p){
+  const type=String(p?.projectType??p?.ProjectType??'');
+  if(type.toLowerCase()!=='dwgsketchproject')throw new Error('File không phải dự án DWG Sketch (*.dwgsketch.json).');
+  p.projectType='DwgSketchProject';p.version=Math.max(3,num(p.version??p.Version,3));
+  p.entities=Array.isArray(p.entities)?p.entities:Array.isArray(p.Entities)?p.Entities:[];
+  p.overlays=Array.isArray(p.overlays)?p.overlays:Array.isArray(p.Overlays)?p.Overlays:[];
+  p.visibleLayers=Array.isArray(p.visibleLayers)?p.visibleLayers:[];
+  p.unsupportedTypes=p.unsupportedTypes||{};p.display=p.display||{};
+  return p;
+}
+function createBlankProject(){return{projectType:'DwgSketchProject',version:3,savedAt:nowIso(),sourceFormat:'HTML Editor / JSON Project',sourceFile:null,intermediateFile:null,unsupportedTypes:{},entities:[],overlays:[],visibleLayers:['0'],drawingBounds:{minX:0,minY:0,maxX:1000,maxY:700},exportRegion:null,display:{hideSmallText:false,minimumTextPixel:1,dwgTextScale:1,useDwgColors:false,exportBackground:'White',enableSnap:true,snapEndpoint:true,snapMidpoint:true,snapCenter:true,snapIntersection:true,snapPerpendicular:false,snapTolerancePixel:14,exportScope:'full',printFrameBorder:false,exportBgMode:'white',exportBgColor:'#ffffff',exportStrokeMode:'original',exportStrokeColor:'#000000'}}}
+function checkUnsaved(){return !dirty||confirm('Phiên hiện tại có thay đổi chưa lưu. Bỏ thay đổi và tiếp tục?')}
+function loadProjectObject(raw,name='Dự án JSON',markClean=true,resetHistory=true){
+  project=normalizeProject(raw);entities=project.entities;overlays=project.overlays;
+  const layers=[...new Set(entities.map(e=>String(e.layer||'0')))];if(!layers.length)layers.push('0');
+  visibleLayers=new Set(project.visibleLayers?.length?project.visibleLayers:layers);
+  bounds=validBounds(project.drawingBounds)?normalizeBounds(project.drawingBounds):computeBounds();
+  selected=[];if(resetHistory){undoStack=[];redoStack=[];clipboard=[]}preview=null;snapPoint=null;
+  currentFileName=normalizeFileName(name);
+  $('exportScope').value=project.display?.exportScope==='frame'?'frame':'full';
+  $('printFrameBorder').checked=!!project.display?.printFrameBorder;
+  $('exportBgMode').value=project.display?.exportBgMode||'white';
+  $('exportBgColor').value=project.display?.exportBgColor||'#ffffff';
+  $('exportStrokeMode').value=project.display?.exportStrokeMode||'original';
+  $('exportStrokeColor').value=project.display?.exportStrokeColor||'#000000';
+  buildLayers(layers);updateProjectInfo(name);fitView();setDirty(!markClean);updateHistoryButtons();draw();status(`Đã nạp ${entities.length.toLocaleString('vi-VN')} đối tượng DWG và ${overlays.length.toLocaleString('vi-VN')} đối tượng bổ sung.`)
+}
+function normalizeFileName(name){let n=String(name||'BanVe_DaChinhSua.dwgsketch.json').replace(/[\\/:*?"<>|]/g,'_');if(!n.toLowerCase().endsWith('.json'))n+='.dwgsketch.json';return n}
+function computeBounds(){let b={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};entities.forEach(e=>itemBounds(e,b));overlays.forEach(e=>itemBounds(e,b));if(!Number.isFinite(b.minX)||b.maxX<=b.minX||b.maxY<=b.minY)b={minX:0,minY:0,maxX:1000,maxY:700};return b}
+function itemBounds(e,b){const t=String(e.type||'').toUpperCase();if(t==='LINE'||t==='RECTANGLE'||t==='SQUARE'){include(b,point(e.a));include(b,point(e.b))}else if(t==='CIRCLE'||t==='ARC'||t==='ELLIPSE'){const c=point(e.center),rx=Math.abs(num(e.radius)),ry=t==='ELLIPSE'?Math.abs(num(e.radiusY,rx)):rx;include(b,{x:c.x-rx,y:c.y-ry});include(b,{x:c.x+rx,y:c.y+ry})}else if(t==='POLYLINE'||t==='LWPOLYLINE'){(e.points||[]).forEach(p=>include(b,point(p)))}else if(t==='TEXT'||t==='MTEXT'){const p=point(e.position),h=Math.max(.1,num(e.height,2.5)),lines=String(e.text||'').split(/\r?\n/),w=Math.max(1,...lines.map(x=>x.length))*h*.65;include(b,p);include(b,{x:p.x+w,y:p.y+h*Math.max(1,lines.length)*1.2})}}
+function recalcBounds(){bounds=computeBounds();project.drawingBounds=clone(bounds)}
+function resize(){const r=viewer.getBoundingClientRect();dpr=Math.max(1,window.devicePixelRatio||1);canvas.width=Math.max(1,Math.round(r.width*dpr));canvas.height=Math.max(1,Math.round(r.height*dpr));canvas.style.width=r.width+'px';canvas.style.height=r.height+'px';draw()}
+new ResizeObserver(resize).observe(viewer);
+function sx(x){return x*scale+offsetX}function sy(y){return-y*scale+offsetY}function world(x,y){return{x:(x-offsetX)/scale,y:-(y-offsetY)/scale}}
+function eventPos(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function fitView(){if(!bounds)return;const w=canvas.clientWidth||1,h=canvas.clientHeight||1,pad=25;scale=Math.max(.000001,Math.min((w-pad*2)/Math.max(.0001,bounds.maxX-bounds.minX),(h-pad*2)/Math.max(.0001,bounds.maxY-bounds.minY)));offsetX=pad-bounds.minX*scale;offsetY=pad+bounds.maxY*scale;draw()}
+function zoomAt(screen,factor){const before=world(screen.x,screen.y);scale=Math.max(.000001,Math.min(1e6,scale*factor));offsetX=screen.x-before.x*scale;offsetY=screen.y+before.y*scale}
+function draw(){const w=canvas.clientWidth||1,h=canvas.clientHeight||1;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle=$('darkCheck').checked?'#202124':'#fff';ctx.fillRect(0,0,w,h);if(!project){drawEmpty(w,h);return}for(const e of entities)if(visibleLayers.has(String(e.layer||'0')))drawItem(e,false);if($('overlayCheck').checked)for(const e of overlays)drawItem(e,true);if(preview)drawPreview();if($('frameCheck').checked&&validBounds(project.exportRegion))drawFrame(project.exportRegion);for(const s of selected)drawHighlight(s.item,s.kind==='overlay');if(snapPoint)drawSnap(snapPoint);else drawSnap(null)}
+function drawEmpty(w,h){ctx.fillStyle='#9aa0a6';ctx.font='18px Segoe UI';ctx.textAlign='center';ctx.fillText('Tạo mới hoặc chọn file dự án JSON để bắt đầu chỉnh sửa',w/2,h/2)}
+function cadColor(i){if(!$('colorCheck').checked)return $('darkCheck').checked?'#f1f3f4':'#111';return({1:'#f44336',2:'#ffeb3b',3:'#00e676',4:'#00e5ff',5:'#2979ff',6:'#e040fb',7:$('darkCheck').checked?'#fff':'#000',8:'#888',9:'#bbb'})[num(i)]||($('darkCheck').checked?'#fff':'#000')}
+function itemColor(e,overlay){return overlay?argbToHex(e.color??0xffffffff):cadColor(e.colorIndex)}
+function drawItem(e,overlay,overrideColor=null){const t=String(e.type||'').toUpperCase();ctx.save();ctx.strokeStyle=overrideColor||itemColor(e,overlay);ctx.fillStyle=overrideColor||itemColor(e,overlay);ctx.lineWidth=overlay?Math.max(.5,num(e.stroke,2)):1;ctx.lineCap='round';ctx.lineJoin='round';if(t==='LINE'){const a=point(e.a),b=point(e.b);pathLine(a,b)}else if(t==='RECTANGLE'||t==='SQUARE'){const a=point(e.a),b=point(e.b);ctx.strokeRect(Math.min(sx(a.x),sx(b.x)),Math.min(sy(a.y),sy(b.y)),Math.abs(sx(b.x)-sx(a.x)),Math.abs(sy(b.y)-sy(a.y)))}else if(t==='CIRCLE'){const c=point(e.center);ctx.beginPath();ctx.arc(sx(c.x),sy(c.y),Math.abs(num(e.radius))*scale,0,Math.PI*2);ctx.stroke()}else if(t==='ELLIPSE'){const c=point(e.center);ctx.beginPath();ctx.ellipse(sx(c.x),sy(c.y),Math.abs(num(e.radius))*scale,Math.abs(num(e.radiusY,e.radius))*scale,0,0,Math.PI*2);ctx.stroke()}else if(t==='ARC'){const c=point(e.center),r=Math.abs(num(e.radius))*scale,s=-num(e.startDeg)*Math.PI/180,en=-num(e.endDeg)*Math.PI/180;ctx.beginPath();ctx.arc(sx(c.x),sy(c.y),r,s,en,true);ctx.stroke()}else if(t==='POLYLINE'||t==='LWPOLYLINE'){const pts=(e.points||[]).map(point);if(pts.length){ctx.beginPath();ctx.moveTo(sx(pts[0].x),sy(pts[0].y));pts.slice(1).forEach(p=>ctx.lineTo(sx(p.x),sy(p.y)));if(e.closed)ctx.closePath();ctx.stroke()}}else if(t==='TEXT'||t==='MTEXT'){drawText(e)}ctx.restore()}
+function pathLine(a,b){ctx.beginPath();ctx.moveTo(sx(a.x),sy(a.y));ctx.lineTo(sx(b.x),sy(b.y));ctx.stroke()}
+function drawText(e){const p=point(e.position),size=Math.max(.5,num(e.height,2.5)*scale),lines=String(e.text||'').replace(/\r/g,'').split('\n');ctx.font=`${Math.min(size,5000)}px ${e.fontName||'Segoe UI'}`;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.translate(sx(p.x),sy(p.y));ctx.rotate(-num(e.rotationDeg)*Math.PI/180);lines.forEach((line,i)=>ctx.fillText(line,0,i*size*1.2))}
+function drawFrame(b){ctx.save();ctx.strokeStyle='#ffb74d';ctx.lineWidth=2;ctx.setLineDash([8,5]);ctx.strokeRect(sx(b.minX),sy(b.maxY),sx(b.maxX)-sx(b.minX),sy(b.minY)-sy(b.maxY));ctx.restore()}
+function drawPreview(){ctx.save();ctx.strokeStyle='#4fc3f7';ctx.fillStyle='#4fc3f7';ctx.lineWidth=Math.max(.5,num($('newStroke').value,2));ctx.setLineDash([6,4]);drawItem(preview,true,'#4fc3f7');ctx.restore()}
+function drawHighlight(e,overlay){ctx.save();ctx.strokeStyle=overlay?'#ffb74d':'#00e5ff';ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=2;ctx.setLineDash([6,4]);drawItem(e,overlay,ctx.strokeStyle);const b=getItemBounds(e);if(b){ctx.strokeRect(sx(b.minX)-4,sy(b.maxY)-4,sx(b.maxX)-sx(b.minX)+8,sy(b.minY)-sy(b.maxY)+8)}ctx.restore()}
+function drawSnap(s){const lab=$('snapLabel');if(!s){lab.style.display='none';return}const x=sx(s.point.x),y=sy(s.point.y);ctx.save();ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.moveTo(x-10,y);ctx.lineTo(x+10,y);ctx.moveTo(x,y-10);ctx.lineTo(x,y+10);ctx.stroke();ctx.restore();lab.style.display='block';lab.style.left=(x+12)+'px';lab.style.top=(y+12)+'px';lab.textContent=s.label}
+function getItemBounds(e){let b={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};itemBounds(e,b);return Number.isFinite(b.minX)?b:null}
+function buildLayers(layers){$('layerList').innerHTML='';for(const layer of layers.sort((a,b)=>a.localeCompare(b,'vi'))){const row=document.createElement('label');row.className='layer-row';const cb=document.createElement('input');cb.type='checkbox';cb.checked=visibleLayers.has(layer);cb.onchange=()=>{if(cb.checked)visibleLayers.add(layer);else visibleLayers.delete(layer);project.visibleLayers=[...visibleLayers];setDirty(true);draw()};row.append(cb,document.createTextNode(layer));$('layerList').append(row)}}
+function updateProjectInfo(name){const layerCount=new Set(entities.map(e=>String(e.layer||'0'))).size;$('projectInfo').innerHTML=`<span class="badge">${escapeHtml(name)}</span><span class="badge">${entities.length} DWG</span><span class="badge">${overlays.length} bổ sung</span><span class="badge">${layerCount} layer</span>`}
+function updateSelectionPanel(){const form=$('propertyForm'),sum=$('selectionSummary');if(!selected.length){sum.textContent='Chưa chọn đối tượng.';form.innerHTML='<div class="muted full">Chưa chọn đối tượng.</div>';return}sum.innerHTML=`<span class="badge">${selected.length} đối tượng</span>`+selected.map(s=>`<span class="badge">${s.kind==='overlay'?'Bổ sung':'DWG'} · ${escapeHtml(String(s.item.type||''))}</span>`).join('');if(selected.length>1){form.innerHTML='<div class="muted full">Đang chọn nhiều đối tượng. Có thể kéo, xoay, copy, paste hoặc xóa cả nhóm.</div>';return}const {item:e,kind}=selected[0],t=String(e.type||'').toUpperCase();let html=`<label class="full">Loại<input value="${escapeAttr(t)}" disabled></label>`;if(kind==='entity')html+=`<label class="full">Layer<input id="propLayer" value="${escapeAttr(e.layer||'0')}"></label><label>ACI màu<input id="propColorIndex" type="number" value="${num(e.colorIndex,256)}"></label>`;else html+=`<label>Màu<input id="propColor" type="color" value="${argbToHex(e.color??0xffffffff)}"></label><label>Độ dày<input id="propStroke" type="number" min="0.2" step="0.2" value="${num(e.stroke,2)}"></label>`;
+  if(t==='TEXT'||t==='MTEXT'){const p=point(e.position);html+=`<label class="full">Nội dung<textarea id="propText">${escapeHtml(e.text||'')}</textarea></label>${pointFields('propPos',p)}<label>Chiều cao<input id="propHeight" type="number" step="0.1" value="${num(e.height,2.5)}"></label><label>Góc xoay<input id="propRotation" type="number" step="1" value="${num(e.rotationDeg)}"></label>`}
+  else if(t==='LINE'||t==='RECTANGLE'||t==='SQUARE'){html+=pointFields('propA',point(e.a),'A')+pointFields('propB',point(e.b),'B')}
+  else if(t==='CIRCLE'||t==='ARC'||t==='ELLIPSE'){html+=pointFields('propCenter',point(e.center),'Tâm')+`<label>Bán kính X<input id="propRadius" type="number" step="0.1" value="${num(e.radius)}"></label>`;if(t==='ELLIPSE')html+=`<label>Bán kính Y<input id="propRadiusY" type="number" step="0.1" value="${num(e.radiusY,e.radius)}"></label>`;if(t==='ARC')html+=`<label>Góc đầu<input id="propStartDeg" type="number" step="1" value="${num(e.startDeg)}"></label><label>Góc cuối<input id="propEndDeg" type="number" step="1" value="${num(e.endDeg,180)}"></label>`}
+  else if(t==='POLYLINE'||t==='LWPOLYLINE')html+=`<div class="muted full">Polyline có ${(e.points||[]).length} đỉnh. Phiên bản đầu cho phép kéo, xoay, copy và xóa toàn bộ polyline.</div>`;
+  form.innerHTML=html
+}
+function pointFields(prefix,p,label='Vị trí'){return`<label>${label} X<input id="${prefix}X" type="number" step="0.1" value="${p.x}"></label><label>${label} Y<input id="${prefix}Y" type="number" step="0.1" value="${p.y}"></label>`}
+function readPoint(prefix,fallback){return{x:num($(prefix+'X')?.value,fallback.x),y:num($(prefix+'Y')?.value,fallback.y)}}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function escapeAttr(s){return escapeHtml(s)}
+function setDirty(v){dirty=!!v;$('dirtyBadge').textContent=dirty?'Chưa lưu':'Đã lưu';$('dirtyBadge').className='badge '+(dirty?'dirty':'ok');document.title=(dirty?'* ':'')+'DWG Sketch HTML Editor'}
+function status(s){$('statusText').textContent=s}
+function snapshot(){syncProject();return JSON.stringify(project)}
+function restoreSnapshot(s){const view={scale,offsetX,offsetY};loadProjectObject(JSON.parse(s),currentFileName,false,false);scale=view.scale;offsetX=view.offsetX;offsetY=view.offsetY;setDirty(true);draw()}
+function beginAction(){actionBefore=snapshot()}
+function commitAction(label){if(actionBefore&&actionBefore!==snapshot()){undoStack.push(actionBefore);if(undoStack.length>MAX_HISTORY)undoStack.shift();redoStack=[];setDirty(true);status(label)}actionBefore=null;updateHistoryButtons()}
+function simpleAction(label,fn){beginAction();fn();recalcBounds();commitAction(label);updateSelectionPanel();draw()}
+function undo(){if(!undoStack.length)return;const cur=snapshot(),prev=undoStack.pop();redoStack.push(cur);restoreSnapshot(prev);updateHistoryButtons();status('Đã Undo')}
+function redo(){if(!redoStack.length)return;const cur=snapshot(),next=redoStack.pop();undoStack.push(cur);restoreSnapshot(next);updateHistoryButtons();status('Đã Redo')}
+function updateHistoryButtons(){$('undoBtn').disabled=!undoStack.length;$('redoBtn').disabled=!redoStack.length;$('copyBtn').disabled=!selected.length;$('deleteBtn').disabled=!selected.length;$('pasteBtn').disabled=!clipboard.length}
+function syncProject(){if(!project)return;project.entities=entities;project.overlays=overlays;project.visibleLayers=[...visibleLayers];project.drawingBounds=clone(computeBounds());project.display={...(project.display||{}),useDwgColors:$('colorCheck').checked,enableSnap:$('snapCheck').checked,snapTolerancePixel:num($('snapTolerance').value,14)}}
+function saveJson(){if(!project)return;syncProject();project.savedAt=nowIso();const data=JSON.stringify(project,null,2),blob=new Blob([data],{type:'application/json;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=currentFileName;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);setDirty(false);status('Đã tải file JSON dự án. Trình duyệt không ghi đè trực tiếp file cũ.')}
+function openFile(file){if(!file)return;if(!checkUnsaved())return;const r=new FileReader();r.onload=()=>{try{loadProjectObject(JSON.parse(r.result),file.name,true)}catch(err){alert(err.message)}};r.onerror=()=>alert('Không đọc được file.');r.readAsText(file,'utf-8')}
+function newProject(){if(!checkUnsaved())return;loadProjectObject(createBlankProject(),'BanVeMoi.dwgsketch.json',false);setDirty(true);status('Đã tạo bản vẽ mới 1000 × 700 đơn vị.')}
+function setTool(t){tool=t;document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));preview=null;interaction=null;snapPoint=null;status({select:'Chọn đối tượng; Ctrl/Shift để chọn nhiều.',pan:'Kéo để dịch chuyển bản vẽ.',text:'Bấm vị trí để đặt chữ.',line:'Kéo từ điểm đầu đến điểm cuối.',rectangle:'Kéo để tạo hình chữ nhật.',square:'Kéo để tạo hình vuông.',circle:'Bấm tâm và kéo bán kính.',arc:'Bấm tâm và kéo bán kính; dùng góc ở bảng phải.',ellipse:'Kéo theo khung bao elip.',frame:'Kéo để chọn khung xuất.'}[t]||t);draw()}
+function refFor(item,kind){return{item,kind}}
+function isSelected(item){return selected.some(s=>s.item===item)}
+function selectHit(hit,add){if(!hit){if(!add)selected=[]}else if(add){const i=selected.findIndex(s=>s.item===hit.item);if(i>=0)selected.splice(i,1);else selected.push(hit)}else selected=[hit];updateSelectionPanel();updateHistoryButtons();draw()}
+function hitTest(screen){const list=[];if($('overlayCheck').checked)for(let i=overlays.length-1;i>=0;i--)list.push(refFor(overlays[i],'overlay'));for(let i=entities.length-1;i>=0;i--)if(visibleLayers.has(String(entities[i].layer||'0')))list.push(refFor(entities[i],'entity'));for(const r of list)if(hitItem(r.item,screen))return r;return null}
+function hitItem(e,s){const t=String(e.type||'').toUpperCase(),tol=8;if(t==='LINE')return pointSegmentDistance(s,screenPoint(point(e.a)),screenPoint(point(e.b)))<=tol;if(t==='RECTANGLE'||t==='SQUARE'){const a=screenPoint(point(e.a)),b=screenPoint(point(e.b));return s.x>=Math.min(a.x,b.x)-tol&&s.x<=Math.max(a.x,b.x)+tol&&s.y>=Math.min(a.y,b.y)-tol&&s.y<=Math.max(a.y,b.y)+tol}if(t==='CIRCLE'){const c=screenPoint(point(e.center)),r=Math.abs(num(e.radius))*scale,d=Math.hypot(s.x-c.x,s.y-c.y);return d<=r+tol}if(t==='ELLIPSE'){const c=screenPoint(point(e.center)),rx=Math.max(1,Math.abs(num(e.radius))*scale),ry=Math.max(1,Math.abs(num(e.radiusY,e.radius))*scale);return((s.x-c.x)/rx)**2+((s.y-c.y)/ry)**2<=1.15}if(t==='ARC'){const c=screenPoint(point(e.center)),r=Math.abs(num(e.radius))*scale,d=Math.hypot(s.x-c.x,s.y-c.y);if(Math.abs(d-r)>tol)return false;const w=world(s.x,s.y),a=normalizeAngle(Math.atan2(w.y-point(e.center).y,w.x-point(e.center).x)*180/Math.PI);return angleOnArc(a,num(e.startDeg),num(e.endDeg))}if(t==='POLYLINE'||t==='LWPOLYLINE'){const pts=(e.points||[]).map(p=>screenPoint(point(p)));for(let i=0;i<pts.length-1;i++)if(pointSegmentDistance(s,pts[i],pts[i+1])<=tol)return true;if(e.closed&&pts.length>2&&pointSegmentDistance(s,pts.at(-1),pts[0])<=tol)return true;return false}if(t==='TEXT'||t==='MTEXT'){const p=screenPoint(point(e.position)),size=Math.max(2,num(e.height,2.5)*scale),lines=String(e.text||'').split(/\r?\n/),w=Math.max(1,...lines.map(x=>x.length))*size*.65,h=Math.max(1,lines.length)*size*1.2;const q=rotateScreen(s,p,num(e.rotationDeg));return q.x>=p.x-5&&q.x<=p.x+w+5&&q.y>=p.y-size-5&&q.y<=p.y+h+5}return false}
+function screenPoint(p){return{x:sx(p.x),y:sy(p.y)}}function rotateScreen(p,c,deg){const a=deg*Math.PI/180,dx=p.x-c.x,dy=p.y-c.y;return{x:c.x+dx*Math.cos(a)-dy*Math.sin(a),y:c.y+dx*Math.sin(a)+dy*Math.cos(a)}}
+function pointSegmentDistance(p,a,b){const vx=b.x-a.x,vy=b.y-a.y,l=vx*vx+vy*vy;if(l<1e-9)return dist(p,a);const t=Math.max(0,Math.min(1,((p.x-a.x)*vx+(p.y-a.y)*vy)/l));return Math.hypot(p.x-(a.x+t*vx),p.y-(a.y+t*vy))}
+function angleOnArc(a,s,e){a=normalizeAngle(a);s=normalizeAngle(s);e=normalizeAngle(e);return e>=s?(a>=s&&a<=e):(a>=s||a<=e)}
+function snap(worldPoint,screen,base=null){if(!$('snapCheck').checked||!project){snapPoint=null;return worldPoint}const tol=num($('snapTolerance').value,14),candidates=[];for(const e of [...entities,...($('overlayCheck').checked?overlays:[])])collectSnap(e,candidates);let best=null,bd=tol;for(const c of candidates){const sp=screenPoint(c.point),d=dist(screen,sp);if(d<bd){bd=d;best=c}}snapPoint=best;return best?best.point:worldPoint}
+function collectSnap(e,out){const t=String(e.type||'').toUpperCase();if(t==='LINE'||t==='RECTANGLE'||t==='SQUARE'){const a=point(e.a),b=point(e.b);out.push({point:a,label:'Đầu mút'},{point:b,label:'Đầu mút'},{point:midpoint(a,b),label:'Trung điểm'});if(t!=='LINE'){out.push({point:{x:a.x,y:b.y},label:'Đỉnh'},{point:{x:b.x,y:a.y},label:'Đỉnh'})}}else if(t==='CIRCLE'||t==='ARC'||t==='ELLIPSE'){const c=point(e.center),rx=Math.abs(num(e.radius)),ry=t==='ELLIPSE'?Math.abs(num(e.radiusY,rx)):rx;out.push({point:c,label:'Tâm'},{point:{x:c.x+rx,y:c.y},label:'Phần tư'},{point:{x:c.x-rx,y:c.y},label:'Phần tư'},{point:{x:c.x,y:c.y+ry},label:'Phần tư'},{point:{x:c.x,y:c.y-ry},label:'Phần tư'})}else if(t==='POLYLINE'||t==='LWPOLYLINE'){const pts=(e.points||[]).map(point);pts.forEach(p=>out.push({point:p,label:'Đỉnh'}));for(let i=0;i<pts.length-1;i++)out.push({point:midpoint(pts[i],pts[i+1]),label:'Trung điểm'})}else if(t==='TEXT'||t==='MTEXT')out.push({point:point(e.position),label:'Điểm chèn chữ'})}
+function translateItem(e,d){const t=String(e.type||'').toUpperCase();if(t==='LINE'||t==='RECTANGLE'||t==='SQUARE'){e.a=addPoint(point(e.a),d);e.b=addPoint(point(e.b),d)}else if(t==='CIRCLE'||t==='ARC'||t==='ELLIPSE')e.center=addPoint(point(e.center),d);else if(t==='POLYLINE'||t==='LWPOLYLINE')e.points=(e.points||[]).map(p=>addPoint(point(p),d));else if(t==='TEXT'||t==='MTEXT')e.position=addPoint(point(e.position),d)}
+function addPoint(a,b){return{x:a.x+b.x,y:a.y+b.y}}
+function rotateItem(e,center,deg){const t=String(e.type||'').toUpperCase(),rot=p=>rotateWorld(point(p),center,deg);if(t==='LINE'){e.a=rot(e.a);e.b=rot(e.b)}else if(t==='TEXT'||t==='MTEXT'){e.position=rot(e.position);e.rotationDeg=normalizeAngle(num(e.rotationDeg)+deg)}else if(t==='POLYLINE'||t==='LWPOLYLINE')e.points=(e.points||[]).map(rot);else if(t==='ARC'){e.center=rot(e.center);e.startDeg=normalizeAngle(num(e.startDeg)+deg);e.endDeg=normalizeAngle(num(e.endDeg)+deg)}else if(t==='CIRCLE'||t==='ELLIPSE')e.center=rot(e.center);else if(t==='RECTANGLE'||t==='SQUARE'){const a=rot(e.a),b=rot(e.b);e.a=a;e.b=b}}
+function rotateWorld(p,c,deg){const a=deg*Math.PI/180,dx=p.x-c.x,dy=p.y-c.y;return{x:c.x+dx*Math.cos(a)-dy*Math.sin(a),y:c.y+dx*Math.sin(a)+dy*Math.cos(a)}}
+function selectionCenter(){let b={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};selected.forEach(s=>itemBounds(s.item,b));return Number.isFinite(b.minX)?{x:(b.minX+b.maxX)/2,y:(b.minY+b.maxY)/2}:{x:0,y:0}}
+function rotateSelected(deg){if(!selected.length)return;simpleAction(`Đã xoay ${deg}°`,()=>{const c=selectionCenter();selected.forEach(s=>rotateItem(s.item,c,deg))})}
+function copySelection(){clipboard=selected.map(s=>({kind:s.kind,item:clone(s.item)}));updateHistoryButtons();status(`Đã copy ${clipboard.length} đối tượng.`)}
+function pasteSelection(){if(!clipboard.length||!project)return;simpleAction('Đã paste đối tượng',()=>{selected=[];const delta={x:20/Math.max(scale,.0001),y:-20/Math.max(scale,.0001)};for(const c of clipboard){const item=clone(c.item);translateItem(item,delta);if(c.kind==='entity'){entities.push(item);selected.push(refFor(item,'entity'))}else{overlays.push(item);selected.push(refFor(item,'overlay'))}}})}
+function deleteSelection(){if(!selected.length)return;simpleAction('Đã xóa đối tượng',()=>{for(const s of selected){const a=s.kind==='entity'?entities:overlays;const i=a.indexOf(s.item);if(i>=0)a.splice(i,1)}selected=[]})}
+function applyProperties(){if(selected.length!==1)return;const s=selected[0],e=s.item,t=String(e.type||'').toUpperCase();simpleAction('Đã áp dụng thuộc tính',()=>{if(s.kind==='entity'){e.layer=$('propLayer')?.value||'0';e.colorIndex=num($('propColorIndex')?.value,256)}else{e.color=hexToArgb($('propColor')?.value||'#ffffff');e.stroke=Math.max(.2,num($('propStroke')?.value,2))}if(t==='TEXT'||t==='MTEXT'){e.text=$('propText').value;e.position=readPoint('propPos',point(e.position));e.height=Math.max(.01,num($('propHeight').value,2.5));e.rotationDeg=num($('propRotation').value)}else if(t==='LINE'||t==='RECTANGLE'||t==='SQUARE'){e.a=readPoint('propA',point(e.a));e.b=readPoint('propB',point(e.b))}else if(t==='CIRCLE'||t==='ARC'||t==='ELLIPSE'){e.center=readPoint('propCenter',point(e.center));e.radius=Math.max(.01,num($('propRadius').value,e.radius));if(t==='ELLIPSE')e.radiusY=Math.max(.01,num($('propRadiusY').value,e.radiusY));if(t==='ARC'){e.startDeg=num($('propStartDeg').value);e.endDeg=num($('propEndDeg').value)}}if(s.kind==='entity'&&!visibleLayers.has(String(e.layer||'0')))visibleLayers.add(String(e.layer||'0'));buildLayers([...new Set(entities.map(x=>String(x.layer||'0')))])})}
+function openTextEditor(s){if(!s)return;const t=String(s.item.type||'').toUpperCase();if(t!=='TEXT'&&t!=='MTEXT')return;$('modalText').value=s.item.text||'';$('modalHeight').value=num(s.item.height,2.5);$('modalRotation').value=num(s.item.rotationDeg);$('textModal').classList.add('show');$('modalText').focus();$('textModal').dataset.kind=s.kind;$('textModal')._ref=s}
+function applyTextModal(){const s=$('textModal')._ref;if(!s)return;simpleAction('Đã sửa chữ',()=>{s.item.text=$('modalText').value;s.item.height=Math.max(.01,num($('modalHeight').value,2.5));s.item.rotationDeg=num($('modalRotation').value)});$('textModal').classList.remove('show')}
+function createItemForTool(t,a,b){const color=hexToArgb($('newColor').value),stroke=Math.max(.2,num($('newStroke').value,2)),base={color,stroke};if(t==='line')return{type:'LINE',a,b,...base};if(t==='rectangle')return{type:'RECTANGLE',a,b,isSquare:false,...base};if(t==='square'){const dx=b.x-a.x,dy=b.y-a.y,side=Math.max(Math.abs(dx),Math.abs(dy));return{type:'SQUARE',a,b:{x:a.x+(dx<0?-side:side),y:a.y+(dy<0?-side:side)},isSquare:true,...base}}if(t==='circle')return{type:'CIRCLE',center:a,radius:dist(a,b),...base};if(t==='ellipse')return{type:'ELLIPSE',center:midpoint(a,b),radius:Math.abs(b.x-a.x)/2,radiusY:Math.abs(b.y-a.y)/2,...base};if(t==='arc')return{type:'ARC',center:a,radius:dist(a,b),startDeg:num($('newRotation').value),endDeg:num($('newArcEnd').value,180),...base};return null}
+function addTextAt(p){const e={type:'TEXT',position:p,text:$('newText').value||'Ghi chú mới',height:Math.max(.01,num($('newTextHeight').value,2.5)),rotationDeg:num($('newRotation').value),fontName:'Segoe UI',color:hexToArgb($('newColor').value),stroke:num($('newStroke').value,2)};simpleAction('Đã thêm chữ',()=>{overlays.push(e);selected=[refFor(e,'overlay')]});setTool('select')}
+function pointerDown(e){if(!project)return;canvas.setPointerCapture?.(e.pointerId);const s=eventPos(e);pointers.set(e.pointerId,s);lastPointer=s;if(pointers.size===2){const ps=[...pointers.values()];pinch={distance:dist(ps[0],ps[1]),mid:midpoint(ps[0],ps[1]),scale,offsetX,offsetY};interaction=null;preview=null;return}if(e.button===1||e.button===2||tool==='pan'){interaction={type:'pan',start:s,last:s};return}const raw=world(s.x,s.y),p=snap(raw,s);if(tool==='select'){const hit=hitTest(s),add=e.ctrlKey||e.shiftKey;selectHit(hit,add);if(hit&&isSelected(hit.item)){beginAction();interaction={type:'move',start:p,last:p,moved:false}}}else if(tool==='text'){beginAction();addTextAt(p);actionBefore=null}else if(tool==='frame'){beginAction();interaction={type:'frame',start:p,last:p};preview={type:'RECTANGLE',a:p,b:p,color:0xffffb74d,stroke:2}}else{beginAction();interaction={type:'draw',start:p,last:p,tool};preview=createItemForTool(tool,p,p)}e.preventDefault()}
+function pointerMove(e){const s=eventPos(e);pointers.set(e.pointerId,s);$('coordText').textContent=`X: ${world(s.x,s.y).x.toFixed(3)} · Y: ${world(s.x,s.y).y.toFixed(3)}`;if(pointers.size>=2&&pinch){const ps=[...pointers.values()].slice(0,2),d=dist(ps[0],ps[1]),m=midpoint(ps[0],ps[1]),factor=d/Math.max(1,pinch.distance),before=world(pinch.mid.x,pinch.mid.y);scale=Math.max(.000001,Math.min(1e6,pinch.scale*factor));offsetX=m.x-before.x*scale;offsetY=m.y+before.y*scale;draw();return}if(!interaction){const p=snap(world(s.x,s.y),s);void p;draw();return}if(interaction.type==='pan'){offsetX+=s.x-interaction.last.x;offsetY+=s.y-interaction.last.y;interaction.last=s;draw();return}const p=snap(world(s.x,s.y),s,interaction.start);if(interaction.type==='move'){const d={x:p.x-interaction.last.x,y:p.y-interaction.last.y};if(Math.hypot(d.x,d.y)>0){selected.forEach(x=>translateItem(x.item,d));interaction.last=p;interaction.moved=true;recalcBounds();updateSelectionPanel();draw()}}else if(interaction.type==='draw'){interaction.last=p;preview=createItemForTool(interaction.tool,interaction.start,p);draw()}else if(interaction.type==='frame'){interaction.last=p;preview={type:'RECTANGLE',a:interaction.start,b:p,color:0xffffb74d,stroke:2};draw()}e.preventDefault()}
+function pointerUp(e){pointers.delete(e.pointerId);if(pointers.size<2)pinch=null;if(!interaction)return;const i=interaction;interaction=null;if(i.type==='move'){if(i.moved)commitAction('Đã di chuyển đối tượng');else actionBefore=null}else if(i.type==='draw'&&preview){const obj=preview;preview=null;if(getItemSize(obj)>1/Math.max(scale,.0001)){overlays.push(obj);selected=[refFor(obj,'overlay')];recalcBounds();commitAction('Đã thêm đối tượng');setTool('select')}else actionBefore=null}else if(i.type==='frame'){preview=null;project.exportRegion={minX:Math.min(i.start.x,i.last.x),minY:Math.min(i.start.y,i.last.y),maxX:Math.max(i.start.x,i.last.x),maxY:Math.max(i.start.y,i.last.y)};commitAction('Đã chọn khung xuất');setTool('select')}updateSelectionPanel();updateHistoryButtons();draw()}
+function getItemSize(e){const b=getItemBounds(e);return b?Math.max(b.maxX-b.minX,b.maxY-b.minY):0}
+function doubleClick(e){if(!project)return;const hit=hitTest(eventPos(e));if(hit&&(String(hit.item.type||'').toUpperCase()==='TEXT'||String(hit.item.type||'').toUpperCase()==='MTEXT')){selected=[hit];updateSelectionPanel();openTextEditor(hit)}}
+function wheel(e){const s=eventPos(e);zoomAt(s,e.deltaY<0?1.15:1/1.15);draw();e.preventDefault()}
+function command(cmd){
+  cmd=String(cmd||'').trim().toUpperCase();if(!cmd)return;
+  const map={L:'line',LINE:'line',REC:'rectangle',RECT:'rectangle',SQ:'square',C:'circle',A:'arc',EL:'ellipse',T:'text',S:'select',P:'pan',FRAME:'frame'};
+  let handled=true;
+  if(map[cmd])setTool(map[cmd]);
+  else if(cmd==='U'||cmd==='UNDO')undo();
+  else if(cmd==='R'||cmd==='REDO')redo();
+  else if(cmd==='CO'||cmd==='COPY')copySelection();
+  else if(cmd==='PA'||cmd==='PASTE')pasteSelection();
+  else if(cmd==='SAVE'||cmd==='SV')saveJson();
+  else if(cmd==='FIT')fitView();
+  else if(cmd==='DEL'||cmd==='DELETE')deleteSelection();
+  else if(cmd==='NEW')newProject();
+  else if(cmd==='OPEN')$('fileInput').click();
+  else if(cmd==='ALL'){selected=[...entities.filter(e=>visibleLayers.has(String(e.layer||'0'))).map(e=>refFor(e,'entity')),...overlays.map(e=>refFor(e,'overlay'))];updateSelectionPanel();updateHistoryButtons();draw()}
+  else handled=false;
+  if(handled){addCommandHistory(cmd);status(`Đã chạy lệnh: ${cmd}. Nhấn F3 để lặp lại.`)}else status('Không nhận diện lệnh: '+cmd);
+  $('commandInput').value='';
+}
+function getExportBounds(){
+  if(!project)return null;
+  const scope=$('exportScope').value;
+  if(scope==='frame'){
+    if(validBounds(project.exportRegion)) return normalizeBounds(project.exportRegion);
+    alert('Chưa có khung xuất hợp lệ. Hãy dùng công cụ Khung xuất để tạo khung rồi thử lại.');
+    status('Chưa có khung xuất hợp lệ.');
+    return null;
+  }
+  return validBounds(project?.drawingBounds)?normalizeBounds(project.drawingBounds):computeBounds();
+}
+function drawItemOn(target,e,overlay,overrideColor,local){
+  const t=String(e.type||'').toUpperCase(),ls=local.scale,lx=local.offsetX,ly=local.offsetY,useColors=local.useColors;
+  const sx=x=>x*ls+lx, sy=y=>-y*ls+ly;
+  const itemCol=overrideColor||resolveExportStrokeColor(e,overlay,useColors);
+  target.save();target.strokeStyle=itemCol;target.fillStyle=itemCol;target.lineWidth=overlay?Math.max(.5,num(e.stroke,2)):1;target.lineCap='round';target.lineJoin='round';
+  if(t==='LINE'){const a=point(e.a),b=point(e.b);target.beginPath();target.moveTo(sx(a.x),sy(a.y));target.lineTo(sx(b.x),sy(b.y));target.stroke()}
+  else if(t==='RECTANGLE'||t==='SQUARE'){const a=point(e.a),b=point(e.b);target.strokeRect(Math.min(sx(a.x),sx(b.x)),Math.min(sy(a.y),sy(b.y)),Math.abs(sx(b.x)-sx(a.x)),Math.abs(sy(b.y)-sy(a.y)))}
+  else if(t==='CIRCLE'){const c=point(e.center);target.beginPath();target.arc(sx(c.x),sy(c.y),Math.abs(num(e.radius))*ls,0,Math.PI*2);target.stroke()}
+  else if(t==='ELLIPSE'){const c=point(e.center);target.beginPath();target.ellipse(sx(c.x),sy(c.y),Math.abs(num(e.radius))*ls,Math.abs(num(e.radiusY,e.radius))*ls,0,0,Math.PI*2);target.stroke()}
+  else if(t==='ARC'){const c=point(e.center),r=Math.abs(num(e.radius))*ls,s=-num(e.startDeg)*Math.PI/180,en=-num(e.endDeg)*Math.PI/180;target.beginPath();target.arc(sx(c.x),sy(c.y),r,s,en,true);target.stroke()}
+  else if(t==='POLYLINE'||t==='LWPOLYLINE'){const pts=(e.points||[]).map(point);if(pts.length){target.beginPath();target.moveTo(sx(pts[0].x),sy(pts[0].y));pts.slice(1).forEach(p=>target.lineTo(sx(p.x),sy(p.y)));if(e.closed)target.closePath();target.stroke()}}
+  else if(t==='TEXT'||t==='MTEXT'){const p=point(e.position),size=Math.max(.5,num(e.height,2.5)*ls),lines=String(e.text||'').replace(/\r/g,'').split('\n');target.font=`${Math.min(size,5000)}px ${e.fontName||'Segoe UI'}`;target.textAlign='left';target.textBaseline='alphabetic';target.translate(sx(p.x),sy(p.y));target.rotate(-num(e.rotationDeg)*Math.PI/180);lines.forEach((line,i)=>target.fillText(line,0,i*size*1.2))}
+  target.restore();
+}
+
+function resolveExportStrokeColor(e,overlay,useColors){
+  const mode=$('exportStrokeMode').value;
+  if(mode==='black') return '#000000';
+  if(mode==='white') return '#ffffff';
+  if(mode==='custom') return $('exportStrokeColor').value||'#000000';
+  return overlay?argbToHex(e.color??0xffffffff):(useColors?cadColor(e.colorIndex):'#ffffff');
+}
+function buildPrintHtml(title,img,bgColor){
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}</title><style>html,body{margin:0;padding:0;background:${bgColor}}img{display:block;width:100%;height:auto;object-fit:contain;background:${bgColor}}@page{size:auto;margin:10mm}</style></head><body><img src="${img}"></body></html>`
+}
+function renderExportCanvas(){
+  const b=getExportBounds();if(!b)return null;
+  const margin=20,maxSide=2400;
+  const bw=Math.max(1e-9,b.maxX-b.minX),bh=Math.max(1e-9,b.maxY-b.minY),ratio=bh/bw;
+  let w=maxSide,h=Math.max(1,Math.round(maxSide*ratio));
+  if(h>maxSide){h=maxSide;w=Math.max(1,Math.round(h/ratio));}
+  const out=document.createElement('canvas');out.width=w;out.height=h;
+  const c=out.getContext('2d');
+  const bgMode=$('exportBgMode').value;
+  let bg='white';
+  if(bgMode==='dark') bg='#202124'; else if(bgMode==='custom') bg=$('exportBgColor').value||'#ffffff'; else if(bgMode==='transparent') bg='transparent';
+  if(bg==='transparent') c.clearRect(0,0,w,h); else {c.fillStyle=bg; c.fillRect(0,0,w,h);}
+  const ls=Math.min((w-margin*2)/bw,(h-margin*2)/bh);
+  const local={scale:ls,offsetX:margin-b.minX*ls,offsetY:margin+b.maxY*ls,useColors:$('colorCheck').checked};
+  for(const e of entities) if(visibleLayers.has(String(e.layer||'0'))) drawItemOn(c,e,false,null,local);
+  if($('overlayCheck').checked) for(const e of overlays) drawItemOn(c,e,true,null,local);
+  if($('printFrameBorder').checked&&validBounds(project.exportRegion)){const r=project.exportRegion;c.save();c.strokeStyle='#ffb74d';c.lineWidth=2;c.setLineDash([8,5]);const x1=r.minX*ls+local.offsetX,y1=-r.maxY*ls+local.offsetY,x2=r.maxX*ls+local.offsetX,y2=-r.minY*ls+local.offsetY;c.strokeRect(x1,y1,x2-x1,y2-y1);c.restore();}
+  return out;
+}
+function exportPng(){if(!project)return;const out=renderExportCanvas();if(!out)return;const suffix=$('exportScope').value==='frame'?'_khungxuat':'_toanbo';const a=document.createElement('a');a.download=currentFileName.replace(/\.json$/i,'')+suffix+'.png';a.href=out.toDataURL('image/png');a.click()}
+function printCurrent(){if(!project)return;const out=renderExportCanvas();if(!out)return;const win=window.open('','_blank','width=1000,height=800');if(!win){alert('Trình duyệt đã chặn cửa sổ in. Hãy cho phép pop-up rồi thử lại.');return;}const title=(currentFileName||'BanVe').replace(/[<>]/g,'_');const img=out.toDataURL('image/png');const bgMode=$('exportBgMode').value,bg=(bgMode==='dark'?'#202124':bgMode==='custom'?($('exportBgColor').value||'#ffffff'):'#ffffff');win.document.write(buildPrintHtml(title,img,bg));win.document.close();win.focus();setTimeout(()=>{win.print()},250);status('Đã mở hộp thoại in theo tùy chọn hiện tại.')}
+function exportPdf(){if(!project)return;const out=renderExportCanvas();if(!out)return;const win=window.open('','_blank','width=1000,height=800');if(!win){alert('Trình duyệt đã chặn cửa sổ PDF. Hãy cho phép pop-up rồi thử lại.');return;}const title=((currentFileName||'BanVe').replace(/\.json$/i,'')||'BanVe')+'_PDF';const img=out.toDataURL('image/png');const bgMode=$('exportBgMode').value,bg=(bgMode==='dark'?'#202124':bgMode==='custom'?($('exportBgColor').value||'#ffffff'):'#ffffff');win.document.write(buildPrintHtml(title,img,bg));win.document.close();win.focus();setTimeout(()=>{win.print()},250);status('Đã mở hộp thoại in. Hãy chọn Save as PDF / Lưu thành PDF để tạo file PDF.')}
+function loadEmbedded(){if(!EMBEDDED_PROJECT_BASE64||EMBEDDED_PROJECT_BASE64.includes('__EMBEDDED'))return;try{const bin=atob(EMBEDDED_PROJECT_BASE64),bytes=Uint8Array.from(bin,c=>c.charCodeAt(0)),json=new TextDecoder().decode(bytes);loadProjectObject(JSON.parse(json),'Dự án nhúng trong HTML',true)}catch(err){console.error(err)}}
+function keyDown(e){if(e.key==='F3'&&!e.ctrlKey&&!e.altKey&&!e.metaKey){e.preventDefault();recallLastCommand(true);return}if(e.target.matches('input,textarea,select'))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault();redo()}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='c'){e.preventDefault();copySelection()}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='v'){e.preventDefault();pasteSelection()}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){e.preventDefault();saveJson()}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();command('ALL')}else if(e.key==='Delete'){e.preventDefault();deleteSelection()}else if(e.key==='Escape'){setTool('select')}else if(e.key.length===1&&!e.ctrlKey&&!e.altKey&&!e.metaKey){$('commandInput').focus();$('commandInput').value+=e.key}}
+
+$('newBtn').onclick=newProject;$('openBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>openFile(e.target.files[0]);$('saveBtn').onclick=saveJson;
+$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;$('copyBtn').onclick=copySelection;$('pasteBtn').onclick=pasteSelection;$('deleteBtn').onclick=deleteSelection;
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));$('fitBtn').onclick=fitView;$('leftBtn').onclick=()=>layout.classList.toggle('hide-left');$('rightBtn').onclick=()=>layout.classList.toggle('hide-right');$('pngBtn').onclick=exportPng;$('printBtn').onclick=printCurrent;$('pdfBtn').onclick=exportPdf;$('panelPngBtn').onclick=exportPng;$('panelPrintBtn').onclick=printCurrent;$('panelPdfBtn').onclick=exportPdf;
+$('allLayersBtn').onclick=()=>{entities.forEach(e=>visibleLayers.add(String(e.layer||'0')));project.visibleLayers=[...visibleLayers];buildLayers([...visibleLayers]);setDirty(true);draw()};$('noLayersBtn').onclick=()=>{visibleLayers.clear();project.visibleLayers=[];buildLayers([...new Set(entities.map(e=>String(e.layer||'0')))]);setDirty(true);draw()};
+for(const id of['overlayCheck','colorCheck','frameCheck','darkCheck','snapCheck','exportScope','printFrameBorder','exportBgMode','exportBgColor','exportStrokeMode','exportStrokeColor'])$(id).onchange=()=>{if(project){persistDisplay();setDirty(true)}draw()};$('snapTolerance').onchange=()=>{if(project){persistDisplay();setDirty(true)}};
+$('applyBtn').onclick=applyProperties;$('rotateLeftBtn').onclick=()=>rotateSelected(-15);$('rotateRightBtn').onclick=()=>rotateSelected(15);
+$('modalCancel').onclick=()=>$('textModal').classList.remove('show');$('modalApply').onclick=applyTextModal;$('modalText').onkeydown=e=>{if(e.ctrlKey&&e.key==='Enter')applyTextModal()};
+$('runCommandBtn').onclick=()=>command($('commandInput').value);$('previousCommandBtn').onclick=()=>recallLastCommand(false);$('repeatCommandBtn').onclick=()=>recallLastCommand(true);$('commandInput').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();command(e.target.value)}else if(e.key==='ArrowUp'){e.preventDefault();navigateCommandHistory(-1)}else if(e.key==='ArrowDown'){e.preventDefault();navigateCommandHistory(1)}else if(e.key==='F3'){e.preventDefault();recallLastCommand(true)}else if(e.key==='Escape'){e.target.value='';commandHistoryIndex=commandHistory.length;canvas.focus()}};
+canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',pointerUp);canvas.addEventListener('dblclick',doubleClick);canvas.addEventListener('wheel',wheel,{passive:false});canvas.addEventListener('contextmenu',e=>e.preventDefault());
+viewer.addEventListener('dragover',e=>{e.preventDefault();viewer.classList.add('dragging')});viewer.addEventListener('dragleave',()=>viewer.classList.remove('dragging'));viewer.addEventListener('drop',e=>{e.preventDefault();viewer.classList.remove('dragging');openFile(e.dataTransfer.files[0])});
+
+$('installPwaBtn').onclick=installPwa;$('checkUpdateBtn').onclick=()=>checkPwaVersion(true);$('panelCheckUpdateBtn').onclick=()=>checkPwaVersion(true);$('applyUpdateBtn').onclick=applyPwaUpdate;$('panelApplyUpdateBtn').onclick=applyPwaUpdate;$('pwaToastAction').onclick=applyPwaUpdate;$('saveUpdateUrlBtn').onclick=()=>{const value=$('updateUrlInput').value.trim()||'./version.json';localStorage.setItem(PWA_VERSION_URL_KEY,value);$('updateUrlInput').value=value;setUpdateInfo('Đã lưu địa chỉ kiểm tra phiên bản: '+value);};
+window.addEventListener('keydown',keyDown);window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
+if(window.matchMedia('(max-width:600px)').matches)layout.classList.add('hide-left','hide-right');initPwa();loadEmbedded();if(!project)loadProjectObject(createBlankProject(),'BanVeMoi.dwgsketch.json',false);setDirty(false);setTool('select');updateHistoryButtons();resize();
+</script>
+</body>
+</html>
