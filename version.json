@@ -1,6 +1,6 @@
 {
-  "version": "0.11.0",
+  "version": "0.13.1",
   "releasedAt": "2026-07-19T00:00:00Z",
-  "notes": "Bản PWA đầu tiên: cài đặt, làm việc offline, kiểm tra phiên bản và cập nhật Service Worker.",
+  "notes": "Sửa xuất DXF/DWG tương thích LibreDWG và bổ sung tìm/thay thế chữ.",
   "downloadUrl": ""
 }
