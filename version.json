@@ -1,6 +1,6 @@
 {
-  "version": "0.13.5",
+  "version": "0.13.6",
   "releasedAt": "2026-07-19T00:00:00Z",
-  "notes": "DXF luôn giữ TEXT; DWG mặc định xuất nhanh không vector hóa chữ.",
+  "notes": "Sửa DXF: ASCII R12 đồng nhất, không BOM/UTF-8 trực tiếp; giữ TEXT bằng mã Unicode \\U+XXXX và dùng Arial.ttf.",
   "downloadUrl": ""
 }

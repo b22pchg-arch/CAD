@@ -1,5 +1,5 @@
 'use strict';
-const APP_VERSION='0.13.5';
+const APP_VERSION='0.13.6';
 const CACHE_NAME='dwg-sketch-pwa-v'+APP_VERSION;
 const CORE_ASSETS=['./','./index.html','./manifest.webmanifest','./version.json','./icons/icon-192.png','./icons/icon-512.png','./icons/maskable-512.png','./HUONG_DAN_PWA_V0130_SELECT_FIND_MIRROR.txt','./HUONG_DAN_PWA_V0131_DWG_FIND_REPLACE.txt','./HUONG_DAN_PWA_V0132_OPEN_SELECT_FIX.txt','./HUONG_DAN_PWA_V0133_SELECT_DWG_COMPAT.txt','./HUONG_DAN_PWA_V0134_UNICODE_DXF.txt','./HUONG_DAN_PWA_V0135_DXF_TEXT.txt'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(CORE_ASSETS)));});
