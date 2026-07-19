@@ -1,7 +1,7 @@
 'use strict';
-const APP_VERSION='0.13.2';
+const APP_VERSION='0.13.3';
 const CACHE_NAME='dwg-sketch-pwa-v'+APP_VERSION;
-const CORE_ASSETS=['./','./index.html','./manifest.webmanifest','./version.json','./icons/icon-192.png','./icons/icon-512.png','./icons/maskable-512.png','./HUONG_DAN_PWA_V0130_SELECT_FIND_MIRROR.txt','./HUONG_DAN_PWA_V0131_DWG_FIND_REPLACE.txt','./HUONG_DAN_PWA_V0132_OPEN_SELECT_FIX.txt'];
+const CORE_ASSETS=['./','./index.html','./manifest.webmanifest','./version.json','./icons/icon-192.png','./icons/icon-512.png','./icons/maskable-512.png','./HUONG_DAN_PWA_V0130_SELECT_FIND_MIRROR.txt','./HUONG_DAN_PWA_V0131_DWG_FIND_REPLACE.txt','./HUONG_DAN_PWA_V0132_OPEN_SELECT_FIX.txt','./HUONG_DAN_PWA_V0133_SELECT_DWG_COMPAT.txt'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(CORE_ASSETS)));});
 self.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('dwg-sketch-pwa-v')&&k!==CACHE_NAME).map(k=>caches.delete(k)));await self.clients.claim();})());});
 self.addEventListener('message',event=>{if(event.data?.type==='SKIP_WAITING')self.skipWaiting();});
