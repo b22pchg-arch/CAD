@@ -2,7 +2,7 @@
   "id": "./",
   "name": "DWG Sketch PWA Editor",
   "short_name": "DWG Sketch",
-  "description": "Xem, chỉnh sửa, chọn vùng ổn định, tìm/thay chữ, đối xứng, xuất DXF R12 tương thích DWG và quản lý dự án DWG Sketch JSON.",
+  "description": "Xem, chỉnh sửa, chọn vùng ổn định, tìm/thay chữ, đối xứng, xuất DXF Unicode và chuẩn bị dữ liệu DWG R2000 và quản lý dự án DWG Sketch JSON.",
   "lang": "vi",
   "dir": "ltr",
   "start_url": "./index.html",

@@ -1,6 +1,6 @@
 {
-  "version": "0.13.3",
+  "version": "0.13.4",
   "releasedAt": "2026-07-19T00:00:00Z",
-  "notes": "Chọn vùng nhận đường ngang/dọc và cung ổn định hơn; DXF chuẩn bị DWG có chế độ layer 0/ASCII tương thích cao.",
+  "notes": "DXF Unicode UTF-8 giữ nguyên tiếng Việt; C# tạo DWG R2000 với chữ dạng đường bao và sidecar JSON.",
   "downloadUrl": ""
 }
