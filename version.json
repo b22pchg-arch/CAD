@@ -1,6 +1,6 @@
 {
-  "version": "0.13.1",
+  "version": "0.13.2",
   "releasedAt": "2026-07-19T00:00:00Z",
-  "notes": "Sửa xuất DXF/DWG tương thích LibreDWG và bổ sung tìm/thay thế chữ.",
+  "notes": "Tự động mở DWG qua DXF khi JSON LibreDWG không chuẩn; chọn vùng độc lập và ổn định hơn.",
   "downloadUrl": ""
 }
