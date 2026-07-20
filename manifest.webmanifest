@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "DWG Sketch PWA Editor",
+  "name": "DWG Sketch PWA Editor 2D",
   "short_name": "DWG Sketch",
-  "description": "Xem, chỉnh sửa, chọn vùng ổn định, tìm/thay chữ, đối xứng, xuất DXF Unicode và chuẩn bị dữ liệu DWG R2000 và quản lý dự án DWG Sketch JSON.",
+  "description": "Mở, xem và chỉnh sửa trực tiếp dự án JSON hoặc bản vẽ DXF 2D trên máy tính và thiết bị di động.",
   "lang": "vi",
   "dir": "ltr",
   "start_url": "./index.html",
@@ -40,9 +40,15 @@
     {
       "action": "./index.html",
       "accept": {
+        "application/dxf": [
+          ".dxf"
+        ],
         "application/json": [
           ".json",
           ".dwgsketch.json"
+        ],
+        "text/plain": [
+          ".dxf"
         ]
       }
     }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
-<title>DWG Sketch PWA Editor V0.13.6</title>
+<title>DWG Sketch PWA Editor V0.14.0</title>
 <style>
 :root{color-scheme:dark;--bg:#202124;--panel:#292a2d;--line:#45464a;--text:#f1f3f4;--muted:#aeb0b4;--accent:#4fc3f7;--orange:#ffb74d;--danger:#ef5350;--ok:#66bb6a}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);touch-action:none}
@@ -18,13 +18,32 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
 .hidden{display:none!important}.modal{position:fixed;inset:0;background:#0009;display:none;place-items:center;z-index:20;padding:20px}.modal.show{display:grid}.dialog{width:min(520px,100%);max-height:90vh;overflow:auto;background:#303134;border:1px solid #5f6368;border-radius:8px;padding:14px;box-shadow:0 20px 60px #000}.dialog h2{font-size:18px;margin:0 0 12px}.dialog textarea{width:100%;height:140px;background:#202124;color:#fff;border:1px solid #5f6368;border-radius:4px;padding:8px}.dialog .dialog-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}.dialog button{border:1px solid #5f6368;background:#3c4043;color:#fff;border-radius:4px;padding:7px 12px}
 @media(max-width:1050px){.layout{grid-template-columns:0 1fr 0}.left,.right{visibility:hidden;padding:0}.toolbar{max-height:96px;overflow:auto}.tool-group{border-right:0}.commandbar{grid-template-columns:auto 1fr auto auto}.commandbar button{display:none}.commandbar .history-btn{display:block}}
 @media(max-width:600px){body{grid-template-rows:auto 1fr auto auto}.toolbar{padding:4px;gap:3px}.toolbar button{padding:6px 7px;font-size:12px}.status{font-size:10px}.commandbar label{display:none}.commandbar{grid-template-columns:1fr auto auto}.panel{position:absolute;top:0;bottom:0;width:min(88vw,330px);z-index:10;box-shadow:0 0 20px #000}.left{left:0}.right{right:0}.layout:not(.hide-left) .left,.layout:not(.hide-right) .right{visibility:visible}.layout{display:block}.viewer{width:100%;height:100%}}
+
+.mobile-bar,.mobile-sheet,.mobile-panel-head{display:none}
+@media(max-width:700px){
+  body{grid-template-rows:auto 1fr auto auto auto}
+  .toolbar{flex-wrap:nowrap;overflow-x:auto;max-height:none;padding:5px;scrollbar-width:none}.toolbar::-webkit-scrollbar{display:none}
+  .toolbar .tool-group:not(:first-child){display:none}.toolbar .version-pill{margin-left:auto}.toolbar .spacer{display:none}.toolbar button{min-height:40px;padding:7px 10px;white-space:nowrap}
+  .layout{display:block;position:relative}.viewer{width:100%;height:100%}
+  .panel{position:absolute;top:0;bottom:0;width:min(91vw,360px);z-index:30;box-shadow:0 0 24px #000c;padding:8px}.left{left:0}.right{right:0}
+  .layout.hide-left .left,.layout.hide-right .right{visibility:hidden;transform:translateX(-110%)}.layout.hide-right .right{transform:translateX(110%)}
+  .layout:not(.hide-left) .left,.layout:not(.hide-right) .right{visibility:visible;transform:translateX(0)}
+  .panel{transition:transform .18s ease}.mobile-panel-head{display:flex;position:sticky;top:-8px;z-index:2;align-items:center;justify-content:space-between;padding:8px;background:#303134;border-bottom:1px solid var(--line);margin:-8px -8px 8px}.mobile-panel-head button{min-height:38px;border:1px solid #5f6368;background:#3c4043;color:#fff;border-radius:4px;padding:6px 12px}
+  .form-grid{grid-template-columns:1fr}.form-grid .full{grid-column:1}.button-row button,.layer-actions button{min-height:42px}
+  .status{font-size:10px;padding:3px 6px}.commandbar{grid-template-columns:1fr auto auto;padding:5px}.commandbar label,.commandbar #runCommandBtn{display:none}.commandbar input{min-height:42px}.commandbar.mobile-collapsed{display:none}
+  .mobile-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:4px;background:#252629;border-top:1px solid var(--line);z-index:35}.mobile-bar button{min-height:48px;border:1px solid #4d5156;background:#35383b;color:#fff;border-radius:5px;font-size:12px;padding:4px 2px}.mobile-bar button.active{outline:2px solid var(--accent);background:#37474f}
+  .mobile-sheet{display:none;position:fixed;inset:0;background:#0009;z-index:60;align-items:end}.mobile-sheet.show{display:flex}.mobile-sheet-card{width:100%;max-height:78vh;overflow:auto;background:#292a2d;border-radius:14px 14px 0 0;padding:10px;box-shadow:0 -12px 32px #000}.mobile-sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.mobile-sheet-head button{min-height:40px;border:1px solid #5f6368;background:#3c4043;color:#fff;border-radius:5px;padding:6px 12px}.mobile-action-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.mobile-action-grid button{min-height:54px;border:1px solid #5f6368;background:#3c4043;color:#fff;border-radius:7px;padding:6px;font-size:12px}
+  .pwa-toast{bottom:115px}.drop{font-size:16px;inset:12px}.search-results{max-height:35vh}.section h3{font-size:15px}
+}
+@media(max-width:390px){.mobile-action-grid{grid-template-columns:repeat(3,1fr)}.mobile-bar button{font-size:11px}.toolbar .version-pill{display:none}}
+
 @media print{.toolbar,.panel,.status,.commandbar,.snap-label{display:none!important}body{display:block;background:#fff}.layout,.layout.hide-left,.layout.hide-right,.layout.hide-left.hide-right{display:block}.viewer{height:100vh;background:#fff}canvas{width:100%!important;height:100%!important}}
 
 .update-info{margin-top:7px;padding:7px;border:1px solid #45464a;border-radius:5px;background:#202124;word-break:break-word}.update-info.new{border-color:#66bb6a}.update-info.error{border-color:#ef5350}.version-pill{display:inline-block;padding:2px 7px;border-radius:10px;background:#37474f;color:#e1f5fe;font-size:11px}.pwa-toast{position:fixed;right:14px;bottom:74px;max-width:min(420px,90vw);background:#263238;color:#fff;border:1px solid #607d8b;border-radius:7px;padding:10px 12px;z-index:50;box-shadow:0 8px 25px #0008;display:none}.pwa-toast.show{display:block}.pwa-toast button{margin-left:8px;border:1px solid #90a4ae;background:#37474f;color:#fff;border-radius:4px;padding:4px 8px}.install-hidden{display:none!important}.search-results{max-height:190px;overflow:auto;border:1px solid #45464a;border-radius:4px;background:#202124}.search-item{padding:6px 7px;border-bottom:1px solid #34363a;cursor:pointer;font-size:12px}.search-item:last-child{border-bottom:0}.search-item:hover,.search-item.active{background:#37474f}.search-item .meta{color:#aeb0b4;font-size:10px;margin-top:2px}
 </style>
 
 <meta name="theme-color" content="#202124">
-<meta name="description" content="Trình xem và chỉnh sửa dự án DWG Sketch JSON, hoạt động offline dưới dạng PWA.">
+<meta name="description" content="Trình xem và chỉnh sửa trực tiếp dự án JSON và bản vẽ DXF 2D, hoạt động offline dưới dạng PWA.">
 <meta name="application-name" content="DWG Sketch PWA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -37,7 +56,7 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
 <header class="toolbar">
   <div class="tool-group">
     <button id="newBtn" title="Tạo dự án mới">Mới</button>
-    <button id="openBtn">Mở JSON</button><input id="fileInput" type="file" accept=".json,.dwgsketch.json,application/json" hidden>
+    <button id="openBtn">Mở JSON/DXF</button><input id="fileInput" type="file" accept=".json,.dwgsketch.json,.dxf,application/json,application/dxf,text/plain" hidden>
     <button id="saveBtn">Lưu JSON</button>
   </div>
   <div class="tool-group">
@@ -49,11 +68,11 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
   </div>
   <div class="tool-group"><button id="fitBtn">Zoom toàn bộ</button><button id="findTextBtn">Tìm chữ</button><button id="leftBtn">Layer</button><button id="rightBtn">Thuộc tính</button><button id="pngBtn">PNG</button><button id="printBtn">In</button><button id="pdfBtn">PDF</button><button id="dxfBtn">DXF</button></div>
   <div class="tool-group"><button id="installPwaBtn" class="install-hidden">Cài PWA</button><button id="checkUpdateBtn">Kiểm tra phiên bản</button><button id="applyUpdateBtn" class="install-hidden">Cập nhật ngay</button></div>
-  <span class="spacer"></span><span class="version-pill">PWA 0.13.6</span><span id="dirtyBadge" class="badge ok">Đã lưu</span>
+  <span class="spacer"></span><span class="version-pill">PWA 0.14.0</span><span id="dirtyBadge" class="badge ok">Đã lưu</span>
 </header>
 <main id="layout" class="layout">
-  <aside class="panel left">
-    <div class="section"><h3>Dự án</h3><div id="projectInfo" class="muted">Chưa nạp file. Có thể tạo mới, chọn JSON hoặc kéo thả vào bản vẽ.</div></div>
+  <aside class="panel left"><div class="mobile-panel-head"><b>Layer & tìm kiếm</b><button id="closeLeftPanelBtn">Đóng</button></div>
+    <div class="section"><h3>Dự án</h3><div id="projectInfo" class="muted">Chưa nạp file. Có thể tạo mới, chọn JSON/DXF hoặc kéo thả file vào bản vẽ.</div></div>
     <div class="section"><h3>Layer</h3><div class="layer-actions"><button id="allLayersBtn">Tất cả</button><button id="noLayersBtn">Bỏ tất cả</button></div><div id="layerList"></div></div>
     <div class="section"><h3>Hiển thị và bắt điểm</h3>
       <label class="layer-row"><input id="overlayCheck" type="checkbox" checked> Lớp bổ sung</label>
@@ -74,8 +93,9 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
       <div class="button-row"><button id="textReplaceCurrentBtn">Thay kết quả hiện tại</button><button id="textReplaceAllBtn">Thay tất cả</button></div>
       <div id="textSearchStatus" class="muted" style="margin:6px 0">Chưa tìm kiếm.</div><div id="textSearchResults" class="search-results"></div>
     </div>
+    <div class="section"><h3>Đọc DXF trực tiếp</h3><div class="muted">Hỗ trợ DXF ASCII 2D: LINE, POLYLINE/LWPOLYLINE, CIRCLE, ARC, ELLIPSE, TEXT và MTEXT. Các đối tượng chưa hỗ trợ được thống kê nhưng không làm dừng việc mở file.</div><div id="dxfImportInfo" class="update-info muted" style="margin-top:7px">Chưa mở DXF.</div><div class="button-row"><a class="button" href="./sample_dxf_r12_unicode.dxf" download>DXF mẫu</a></div></div>
     <div class="section"><h3>PWA và cập nhật</h3>
-      <div class="muted">Phiên bản đang dùng: <b id="currentVersionText">0.13.6</b></div>
+      <div class="muted">Phiên bản đang dùng: <b id="currentVersionText">0.14.0</b></div>
       <div class="form-grid" style="margin-top:7px"><label class="full">Địa chỉ version.json<input id="updateUrlInput" value="./version.json" autocomplete="off"></label></div>
       <div class="button-row"><button id="saveUpdateUrlBtn">Lưu địa chỉ</button><button id="panelCheckUpdateBtn">Kiểm tra</button><button id="panelApplyUpdateBtn" class="install-hidden">Cập nhật</button></div>
       <div id="updateInfo" class="update-info muted">Chưa kiểm tra phiên bản.</div>
@@ -84,9 +104,9 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
     <div class="section"><h3>Hướng dẫn cảm ứng</h3><div class="muted">Một ngón: chọn/vẽ/kéo theo công cụ. Hai ngón: phóng to, thu nhỏ và dịch chuyển. Nháy đúp chữ để sửa trực tiếp.</div></div>
   </aside>
   <section id="viewer" class="viewer">
-    <canvas id="canvas"></canvas><div class="drop">Thả file *.dwgsketch.json vào đây</div><div id="snapLabel" class="snap-label"></div>
+    <canvas id="canvas"></canvas><div class="drop">Thả file JSON hoặc DXF vào đây</div><div id="snapLabel" class="snap-label"></div>
   </section>
-  <aside class="panel right">
+  <aside class="panel right"><div class="mobile-panel-head"><b>Công cụ & thuộc tính</b><button id="closeRightPanelBtn">Đóng</button></div>
     <div class="section"><h3>Đối tượng được chọn</h3><div id="selectionSummary" class="muted">Bấm vào đối tượng để chọn. Giữ Ctrl/Shift để chọn nhiều.</div></div>
     <div class="section"><h3>Thuộc tính</h3><div id="propertyForm" class="form-grid"><div class="muted full">Chưa chọn đối tượng.</div></div><div class="button-row"><button id="applyBtn" class="primary">Áp dụng</button><button id="rotateLeftBtn">Xoay −15°</button><button id="rotateRightBtn">Xoay +15°</button><button id="mirrorSelectedBtn">Đối xứng</button></div></div>
     <div class="section"><h3>Tạo đối tượng mới</h3><div class="form-grid"><label class="full">Nội dung chữ<textarea id="newText">Ghi chú mới</textarea></label><label>Chiều cao chữ<input id="newTextHeight" type="number" value="2.5" step="0.1"></label><label>Góc chữ/cung<input id="newRotation" type="number" value="0" step="1"></label><label>Góc kết thúc cung<input id="newArcEnd" type="number" value="180" step="1"></label><label>Màu<input id="newColor" type="color" value="#ffffff"></label><label>Độ dày nét<input id="newStroke" type="number" value="2" min="0.2" step="0.2"></label></div></div>
@@ -112,11 +132,20 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
 </main>
 <footer class="status"><span id="statusText">Sẵn sàng</span><span id="coordText">X: 0 · Y: 0</span></footer>
 <div class="commandbar"><label for="commandInput">Lệnh</label><input id="commandInput" autocomplete="off" placeholder="L, REC, SQ, C, A, EL, T, S, MI, F, FN, FR, RA, DXF, FIT, DEL…"><button id="previousCommandBtn" class="history-btn" title="Đưa lệnh vừa dùng vào ô lệnh">↑ Lệnh trước</button><button id="repeatCommandBtn" class="history-btn" title="Chạy lại lệnh gần nhất (F3)">Lặp lại (F3)</button><button id="runCommandBtn">Chạy</button></div>
+<nav id="mobileBar" class="mobile-bar" aria-label="Công cụ nhanh trên điện thoại">
+  <button id="mobileOpenBtn">Mở</button><button id="mobileSelectBtn">Chọn</button><button id="mobilePanBtn">Kéo</button><button id="mobileFindBtn">Tìm</button><button id="mobileLayerBtn">Layer</button><button id="mobileMoreBtn">Thêm</button>
+</nav>
+<div id="mobileSheet" class="mobile-sheet"><div class="mobile-sheet-card"><div class="mobile-sheet-head"><b>Công cụ nhanh</b><button id="mobileSheetCloseBtn">Đóng</button></div><div class="mobile-action-grid">
+  <button data-mobile-command="UNDO">Undo</button><button data-mobile-command="REDO">Redo</button><button data-mobile-tool="selectRegion">Chọn vùng</button><button data-mobile-tool="text">Chữ</button>
+  <button data-mobile-tool="line">Đường</button><button data-mobile-tool="rectangle">Chữ nhật</button><button data-mobile-tool="circle">Tròn</button><button data-mobile-tool="mirror">Đối xứng</button>
+  <button data-mobile-command="FIT">Zoom hết</button><button id="mobilePropertiesBtn">Thuộc tính</button><button data-mobile-command="SAVE">Lưu JSON</button><button data-mobile-command="DXF">Xuất DXF</button>
+  <button data-mobile-command="PNG">PNG</button><button data-mobile-command="PDF">PDF</button><button id="mobileCommandToggleBtn">Dòng lệnh</button><button id="mobileUpdateBtn">Cập nhật</button>
+</div></div></div>
 <div id="textModal" class="modal"><div class="dialog"><h2>Sửa chữ trực tiếp</h2><textarea id="modalText"></textarea><div class="form-grid" style="margin-top:8px"><label>Chiều cao<input id="modalHeight" type="number" step="0.1"></label><label>Góc xoay<input id="modalRotation" type="number" step="1"></label></div><div class="dialog-actions"><button id="modalCancel">Hủy</button><button id="modalApply">Áp dụng</button></div></div></div>
 <div id="pwaToast" class="pwa-toast"><span id="pwaToastText"></span><button id="pwaToastAction" class="install-hidden">Cập nhật</button></div>
 <script>
 'use strict';
-const PWA_APP_VERSION='0.13.6';
+const PWA_APP_VERSION='0.14.0';
 const PWA_VERSION_URL_KEY='DwgSketchPwa.VersionUrl.V1';
 let deferredInstallPrompt=null,pwaRegistration=null,latestVersionInfo=null,reloadingForUpdate=false;
 function parseVersion(v){return String(v||'0').trim().replace(/^v/i,'').split(/[.-]/).map(x=>Number.parseInt(x,10)||0)}
@@ -218,7 +247,7 @@ function loadProjectObject(raw,name='Dự án JSON',markClean=true,resetHistory=
   $('exportBgColor').value=project.display?.exportBgColor||'#ffffff';
   $('exportStrokeMode').value=project.display?.exportStrokeMode||'original';
   $('exportStrokeColor').value=project.display?.exportStrokeColor||'#000000';
-  buildLayers(layers);updateProjectInfo(name);fitView();setDirty(!markClean);updateHistoryButtons();draw();status(`Đã nạp ${entities.length.toLocaleString('vi-VN')} đối tượng DWG và ${overlays.length.toLocaleString('vi-VN')} đối tượng bổ sung.`)
+  buildLayers(layers);updateProjectInfo(name);fitView();setDirty(!markClean);updateHistoryButtons();draw();status(`Đã nạp ${entities.length.toLocaleString('vi-VN')} đối tượng ${/DXF/i.test(String(project.sourceFormat||''))?'DXF':'DWG'} và ${overlays.length.toLocaleString('vi-VN')} đối tượng bổ sung.`)
 }
 function normalizeFileName(name){let n=String(name||'BanVe_DaChinhSua.dwgsketch.json').replace(/[\\/:*?"<>|]/g,'_');if(!n.toLowerCase().endsWith('.json'))n+='.dwgsketch.json';return n}
 function computeBounds(){let b={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};entities.forEach(e=>itemBounds(e,b));overlays.forEach(e=>itemBounds(e,b));if(!Number.isFinite(b.minX)||b.maxX<=b.minX||b.maxY<=b.minY)b={minX:0,minY:0,maxX:1000,maxY:700};return b}
@@ -231,7 +260,7 @@ function eventPos(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r
 function fitView(){if(!bounds)return;const w=canvas.clientWidth||1,h=canvas.clientHeight||1,pad=25;scale=Math.max(.000001,Math.min((w-pad*2)/Math.max(.0001,bounds.maxX-bounds.minX),(h-pad*2)/Math.max(.0001,bounds.maxY-bounds.minY)));offsetX=pad-bounds.minX*scale;offsetY=pad+bounds.maxY*scale;draw()}
 function zoomAt(screen,factor){const before=world(screen.x,screen.y);scale=Math.max(.000001,Math.min(1e6,scale*factor));offsetX=screen.x-before.x*scale;offsetY=screen.y+before.y*scale}
 function draw(){const w=canvas.clientWidth||1,h=canvas.clientHeight||1;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle=$('darkCheck').checked?'#202124':'#fff';ctx.fillRect(0,0,w,h);if(!project){drawEmpty(w,h);return}for(const e of entities)if(visibleLayers.has(String(e.layer||'0')))drawItem(e,false);if($('overlayCheck').checked)for(const e of overlays)drawItem(e,true);if(preview)drawPreview();if(selectionBox)drawSelectionBox(selectionBox);if($('frameCheck').checked&&validBounds(project.exportRegion))drawFrame(project.exportRegion);for(const s of selected)drawHighlight(s.item,s.kind==='overlay');if(snapPoint)drawSnap(snapPoint);else drawSnap(null)}
-function drawEmpty(w,h){ctx.fillStyle='#9aa0a6';ctx.font='18px Segoe UI';ctx.textAlign='center';ctx.fillText('Tạo mới hoặc chọn file dự án JSON để bắt đầu chỉnh sửa',w/2,h/2)}
+function drawEmpty(w,h){ctx.fillStyle='#9aa0a6';ctx.font='18px Segoe UI';ctx.textAlign='center';ctx.fillText('Tạo mới hoặc chọn file JSON/DXF để bắt đầu chỉnh sửa',w/2,h/2)}
 function cadColor(i){if(!$('colorCheck').checked)return $('darkCheck').checked?'#f1f3f4':'#111';return({1:'#f44336',2:'#ffeb3b',3:'#00e676',4:'#00e5ff',5:'#2979ff',6:'#e040fb',7:$('darkCheck').checked?'#fff':'#000',8:'#888',9:'#bbb'})[num(i)]||($('darkCheck').checked?'#fff':'#000')}
 function itemColor(e,overlay){return overlay?argbToHex(e.color??0xffffffff):cadColor(e.colorIndex)}
 function drawItem(e,overlay,overrideColor=null){const t=String(e.type||'').toUpperCase();ctx.save();ctx.strokeStyle=overrideColor||itemColor(e,overlay);ctx.fillStyle=overrideColor||itemColor(e,overlay);ctx.lineWidth=overlay?Math.max(.5,num(e.stroke,2)):1;ctx.lineCap='round';ctx.lineJoin='round';if(t==='LINE'){const a=point(e.a),b=point(e.b);pathLine(a,b)}else if(t==='RECTANGLE'||t==='SQUARE'){const a=point(e.a),b=point(e.b);ctx.strokeRect(Math.min(sx(a.x),sx(b.x)),Math.min(sy(a.y),sy(b.y)),Math.abs(sx(b.x)-sx(a.x)),Math.abs(sy(b.y)-sy(a.y)))}else if(t==='CIRCLE'){const c=point(e.center);ctx.beginPath();ctx.arc(sx(c.x),sy(c.y),Math.abs(num(e.radius))*scale,0,Math.PI*2);ctx.stroke()}else if(t==='ELLIPSE'){const c=point(e.center);ctx.beginPath();ctx.ellipse(sx(c.x),sy(c.y),Math.abs(num(e.radius))*scale,Math.abs(num(e.radiusY,e.radius))*scale,0,0,Math.PI*2);ctx.stroke()}else if(t==='ARC'){const c=point(e.center),r=Math.abs(num(e.radius))*scale,s=-num(e.startDeg)*Math.PI/180,en=-num(e.endDeg)*Math.PI/180;ctx.beginPath();ctx.arc(sx(c.x),sy(c.y),r,s,en,true);ctx.stroke()}else if(t==='POLYLINE'||t==='LWPOLYLINE'){const pts=(e.points||[]).map(point);if(pts.length){ctx.beginPath();ctx.moveTo(sx(pts[0].x),sy(pts[0].y));pts.slice(1).forEach(p=>ctx.lineTo(sx(p.x),sy(p.y)));if(e.closed)ctx.closePath();ctx.stroke()}}else if(t==='TEXT'||t==='MTEXT'){drawText(e)}ctx.restore()}
@@ -266,7 +295,7 @@ function drawHighlight(e,overlay){ctx.save();ctx.strokeStyle=overlay?'#ffb74d':'
 function drawSnap(s){const lab=$('snapLabel');if(!s){lab.style.display='none';return}const x=sx(s.point.x),y=sy(s.point.y);ctx.save();ctx.strokeStyle='#00e5ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.moveTo(x-10,y);ctx.lineTo(x+10,y);ctx.moveTo(x,y-10);ctx.lineTo(x,y+10);ctx.stroke();ctx.restore();lab.style.display='block';lab.style.left=(x+12)+'px';lab.style.top=(y+12)+'px';lab.textContent=s.label}
 function getItemBounds(e){let b={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};itemBounds(e,b);return Number.isFinite(b.minX)?b:null}
 function buildLayers(layers){$('layerList').innerHTML='';for(const layer of layers.sort((a,b)=>a.localeCompare(b,'vi'))){const row=document.createElement('label');row.className='layer-row';const cb=document.createElement('input');cb.type='checkbox';cb.checked=visibleLayers.has(layer);cb.onchange=()=>{if(cb.checked)visibleLayers.add(layer);else visibleLayers.delete(layer);project.visibleLayers=[...visibleLayers];setDirty(true);draw()};row.append(cb,document.createTextNode(layer));$('layerList').append(row)}}
-function updateProjectInfo(name){const layerCount=new Set(entities.map(e=>String(e.layer||'0'))).size;$('projectInfo').innerHTML=`<span class="badge">${escapeHtml(name)}</span><span class="badge">${entities.length} DWG</span><span class="badge">${overlays.length} bổ sung</span><span class="badge">${layerCount} layer</span>`}
+function updateProjectInfo(name){const layerCount=new Set(entities.map(e=>String(e.layer||'0'))).size,source=/DXF/i.test(String(project?.sourceFormat||''))?'DXF':'DWG';$('projectInfo').innerHTML=`<span class="badge">${escapeHtml(name)}</span><span class="badge">${entities.length} ${source}</span><span class="badge">${overlays.length} bổ sung</span><span class="badge">${layerCount} layer</span>`}
 function updateSelectionPanel(){const form=$('propertyForm'),sum=$('selectionSummary');if(!selected.length){sum.textContent='Chưa chọn đối tượng.';form.innerHTML='<div class="muted full">Chưa chọn đối tượng.</div>';return}sum.innerHTML=`<span class="badge">${selected.length} đối tượng</span>`+selected.map(s=>`<span class="badge">${s.kind==='overlay'?'Bổ sung':'DWG'} · ${escapeHtml(String(s.item.type||''))}</span>`).join('');if(selected.length>1){form.innerHTML='<div class="muted full">Đang chọn nhiều đối tượng. Có thể kéo, xoay, copy, paste hoặc xóa cả nhóm.</div>';return}const {item:e,kind}=selected[0],t=String(e.type||'').toUpperCase();let html=`<label class="full">Loại<input value="${escapeAttr(t)}" disabled></label>`;if(kind==='entity')html+=`<label class="full">Layer<input id="propLayer" value="${escapeAttr(e.layer||'0')}"></label><label>ACI màu<input id="propColorIndex" type="number" value="${num(e.colorIndex,256)}"></label>`;else html+=`<label>Màu<input id="propColor" type="color" value="${argbToHex(e.color??0xffffffff)}"></label><label>Độ dày<input id="propStroke" type="number" min="0.2" step="0.2" value="${num(e.stroke,2)}"></label>`;
   if(t==='TEXT'||t==='MTEXT'){const p=point(e.position);html+=`<label class="full">Nội dung<textarea id="propText">${escapeHtml(e.text||'')}</textarea></label>${pointFields('propPos',p)}<label>Chiều cao<input id="propHeight" type="number" step="0.1" value="${num(e.height,2.5)}"></label><label>Góc xoay<input id="propRotation" type="number" step="1" value="${num(e.rotationDeg)}"></label>`}
   else if(t==='LINE'||t==='RECTANGLE'||t==='SQUARE'){html+=pointFields('propA',point(e.a),'A')+pointFields('propB',point(e.b),'B')}
@@ -289,7 +318,79 @@ function redo(){if(!redoStack.length)return;const cur=snapshot(),next=redoStack.
 function updateHistoryButtons(){$('undoBtn').disabled=!undoStack.length;$('redoBtn').disabled=!redoStack.length;$('copyBtn').disabled=!selected.length;$('deleteBtn').disabled=!selected.length;$('pasteBtn').disabled=!clipboard.length}
 function syncProject(){if(!project)return;project.entities=entities;project.overlays=overlays;project.visibleLayers=[...visibleLayers];project.drawingBounds=clone(computeBounds());project.display={...(project.display||{}),useDwgColors:$('colorCheck').checked,enableSnap:$('snapCheck').checked,snapTolerancePixel:num($('snapTolerance').value,14)}}
 function saveJson(){if(!project)return;syncProject();project.savedAt=nowIso();const data=JSON.stringify(project,null,2),blob=new Blob([data],{type:'application/json;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=currentFileName;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);setDirty(false);status('Đã tải file JSON dự án. Trình duyệt không ghi đè trực tiếp file cũ.')}
-function openFile(file){if(!file)return;if(!checkUnsaved())return;const r=new FileReader();r.onload=()=>{try{loadProjectObject(JSON.parse(r.result),file.name,true)}catch(err){alert(err.message)}};r.onerror=()=>alert('Không đọc được file.');r.readAsText(file,'utf-8')}
+
+function dxfDecodeEscapes(value){
+  return String(value??'')
+    .replace(/\\U\+([0-9A-Fa-f]{4})/g,(_,h)=>String.fromCharCode(parseInt(h,16)))
+    .replace(/%%d/gi,'°').replace(/%%p/gi,'±').replace(/%%c/gi,'Ø')
+}
+function dxfCleanMText(value){
+  let s=dxfDecodeEscapes(value).replace(/\\P/gi,'\n').replace(/\\~/g,' ');
+  s=s.replace(/\\[ACFHQTW][^;]*;/gi,'').replace(/\\[LOK]/g,'').replace(/[{}]/g,'');
+  return s;
+}
+function decodeDxfArrayBuffer(buffer){
+  const bytes=new Uint8Array(buffer);let preview='';
+  try{preview=new TextDecoder('windows-1252').decode(bytes.slice(0,Math.min(bytes.length,65536)))}catch{preview=new TextDecoder().decode(bytes.slice(0,Math.min(bytes.length,65536)))}
+  const cp=(preview.match(/\$DWGCODEPAGE[\s\S]{0,80}?\r?\n\s*3\s*\r?\n\s*([^\r\n]+)/i)||[])[1]?.trim().toUpperCase()||'';
+  const encodings=cp.includes('1258')?['windows-1258','utf-8','windows-1252']:cp.includes('1252')?['windows-1252','utf-8']:['utf-8','windows-1258','windows-1252'];
+  let best='',bestBad=Infinity,used=encodings[0];
+  for(const enc of encodings){try{const s=new TextDecoder(enc).decode(bytes),bad=(s.match(/�/g)||[]).length;if(bad<bestBad){best=s;bestBad=bad;used=enc}if(!bad)break}catch{}}
+  if(best.charCodeAt(0)===0xFEFF)best=best.slice(1);
+  return{text:best,encoding:used,codepage:cp||'không khai báo'};
+}
+function dxfMakePairs(text){
+  const lines=String(text).replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  const pairs=[];for(let i=0;i+1<lines.length;i+=2){const code=Number.parseInt(lines[i].trim(),10);if(!Number.isFinite(code))continue;pairs.push({code,value:lines[i+1]??'',line:i+1})}return pairs;
+}
+function dxfRecord(pairs,start){const type=String(pairs[start]?.value||'').trim().toUpperCase();let i=start+1,data=[];while(i<pairs.length&&pairs[i].code!==0)data.push(pairs[i++]);return{type,data,next:i}}
+function dxfFirst(data,code,fallback=''){const p=data.find(x=>x.code===code);return p?p.value:fallback}
+function dxfAll(data,code){return data.filter(x=>x.code===code).map(x=>x.value)}
+function dxfNum(data,code,fallback=0){const n=Number(dxfFirst(data,code,''));return Number.isFinite(n)?n:fallback}
+function dxfLayer(data){return String(dxfFirst(data,8,'0')).trim()||'0'}
+function dxfColor(data,layerColors,layer){const raw=Math.trunc(dxfNum(data,62,NaN));if(Number.isFinite(raw)&&raw!==0&&raw!==256)return Math.abs(raw);return layerColors.get(layer.toUpperCase())||7}
+function dxfPolylinePoints(data){const pts=[];let current=null;for(const p of data){if(p.code===10){current={x:Number(p.value)||0,y:0};pts.push(current)}else if(p.code===20&&current)current.y=Number(p.value)||0}return pts}
+function dxfEllipseToPolyline(data){
+  const c={x:dxfNum(data,10),y:dxfNum(data,20)},mx=dxfNum(data,11),my=dxfNum(data,21),major=Math.hypot(mx,my),ratio=Math.abs(dxfNum(data,40,1));if(!(major>0&&ratio>0))return null;
+  const ux=mx/major,uy=my/major,vx=-uy,vy=ux,minor=major*ratio,start=dxfNum(data,41,0),end=dxfNum(data,42,Math.PI*2);let span=end-start;if(span<=0)span+=Math.PI*2;const closed=Math.abs(span-Math.PI*2)<1e-5,steps=Math.max(16,Math.ceil(72*span/(Math.PI*2))),pts=[];
+  for(let i=0;i<=(closed?steps-1:steps);i++){const t=start+span*i/steps;pts.push({x:c.x+major*Math.cos(t)*ux+minor*Math.sin(t)*vx,y:c.y+major*Math.cos(t)*uy+minor*Math.sin(t)*vy})}
+  return{type:'POLYLINE',points:pts,closed};
+}
+function dxfEntityFromRecord(rec,layerColors){
+  const d=rec.data,t=rec.type,layer=dxfLayer(d),colorIndex=dxfColor(d,layerColors,layer),base={layer,colorIndex};
+  if(t==='LINE')return{type:'LINE',a:{x:dxfNum(d,10),y:dxfNum(d,20)},b:{x:dxfNum(d,11),y:dxfNum(d,21)},...base};
+  if(t==='CIRCLE')return{type:'CIRCLE',center:{x:dxfNum(d,10),y:dxfNum(d,20)},radius:Math.abs(dxfNum(d,40)),...base};
+  if(t==='ARC')return{type:'ARC',center:{x:dxfNum(d,10),y:dxfNum(d,20)},radius:Math.abs(dxfNum(d,40)),startDeg:dxfNum(d,50),endDeg:dxfNum(d,51),...base};
+  if(t==='LWPOLYLINE'){const points=dxfPolylinePoints(d);if(points.length<2)return null;return{type:'LWPOLYLINE',points,closed:(Math.trunc(dxfNum(d,70))&1)!==0,...base}}
+  if(t==='ELLIPSE'){const e=dxfEllipseToPolyline(d);return e?{...e,...base}:null}
+  if(t==='TEXT'){const text=dxfDecodeEscapes(dxfFirst(d,1,''));if(!text)return null;return{type:'TEXT',position:{x:dxfNum(d,10),y:dxfNum(d,20)},text,height:Math.max(.0001,Math.abs(dxfNum(d,40,2.5))),rotationDeg:dxfNum(d,50,0),fontName:dxfFirst(d,7,'Arial')||'Arial',...base}}
+  if(t==='MTEXT'){const raw=d.filter(x=>x.code===1||x.code===3).map(x=>x.value).join(''),text=dxfCleanMText(raw);if(!text)return null;let rot=dxfNum(d,50,NaN);if(!Number.isFinite(rot)){const x=dxfNum(d,11,1),y=dxfNum(d,21,0);rot=Math.atan2(y,x)*180/Math.PI}return{type:'MTEXT',position:{x:dxfNum(d,10),y:dxfNum(d,20)},text,height:Math.max(.0001,Math.abs(dxfNum(d,40,2.5))),rotationDeg:rot,fontName:'Arial',...base}}
+  return null;
+}
+function parseDxfText(text,fileName='BanVe.dxf',encodingInfo={}){
+  if(String(text).startsWith('AutoCAD Binary DXF'))throw new Error('PWA hiện hỗ trợ DXF ASCII, chưa hỗ trợ Binary DXF. Hãy Save As DXF ASCII trong phần mềm CAD.');
+  const pairs=dxfMakePairs(text);if(pairs.length<4)throw new Error('File DXF không có cấu trúc group code hợp lệ.');
+  let section='',i=0,entitiesOut=[],unsupported={},layerColors=new Map(),acadVersion='',codepage=encodingInfo.codepage||'';
+  const addUnsupported=t=>unsupported[t]=(unsupported[t]||0)+1;
+  while(i<pairs.length){const p=pairs[i];
+    if(p.code===0&&String(p.value).trim().toUpperCase()==='SECTION'){const n=pairs[i+1];section=n?.code===2?String(n.value).trim().toUpperCase():'';i+=2;continue}
+    if(p.code===0&&String(p.value).trim().toUpperCase()==='ENDSEC'){section='';i++;continue}
+    if(section==='HEADER'&&p.code===9){const key=String(p.value).trim().toUpperCase(),val=pairs[i+1];if(key==='$ACADVER'&&val)acadVersion=String(val.value).trim();if(key==='$DWGCODEPAGE'&&val)codepage=String(val.value).trim();i+=2;continue}
+    if(section==='TABLES'&&p.code===0&&String(p.value).trim().toUpperCase()==='LAYER'){const rec=dxfRecord(pairs,i),name=String(dxfFirst(rec.data,2,'0')).trim()||'0',color=Math.abs(Math.trunc(dxfNum(rec.data,62,7)))||7;layerColors.set(name.toUpperCase(),color);i=rec.next;continue}
+    if(section==='ENTITIES'&&p.code===0){const type=String(p.value).trim().toUpperCase();
+      if(type==='POLYLINE'){const head=dxfRecord(pairs,i),layer=dxfLayer(head.data),colorIndex=dxfColor(head.data,layerColors,layer),closed=(Math.trunc(dxfNum(head.data,70))&1)!==0,pts=[];i=head.next;while(i<pairs.length&&pairs[i].code===0){const sub=String(pairs[i].value).trim().toUpperCase();if(sub==='VERTEX'){const vr=dxfRecord(pairs,i);pts.push({x:dxfNum(vr.data,10),y:dxfNum(vr.data,20)});i=vr.next;continue}if(sub==='SEQEND'){i=dxfRecord(pairs,i).next;break}break}if(pts.length>=2)entitiesOut.push({type:'POLYLINE',points:pts,closed,layer,colorIndex});else addUnsupported('POLYLINE_RONG');continue}
+      const rec=dxfRecord(pairs,i),entity=dxfEntityFromRecord(rec,layerColors);if(entity)entitiesOut.push(entity);else if(!['ENDSEC','EOF','SEQEND','VERTEX'].includes(type))addUnsupported(type||'UNKNOWN');i=rec.next;continue
+    }
+    i++;
+  }
+  if(!entitiesOut.length)throw new Error('DXF không có đối tượng 2D được hỗ trợ.');
+  const layers=[...new Set(entitiesOut.map(e=>String(e.layer||'0')))];
+  const projectOut={projectType:'DwgSketchProject',version:3,savedAt:nowIso(),sourceFormat:'DXF ASCII',sourceFile:fileName,intermediateFile:null,unsupportedTypes:unsupported,entities:entitiesOut,overlays:[],visibleLayers:layers,drawingBounds:null,exportRegion:null,display:{hideSmallText:false,minimumTextPixel:1,dwgTextScale:1,useDwgColors:true,exportBackground:'Dark',enableSnap:true,snapEndpoint:true,snapMidpoint:true,snapCenter:true,snapIntersection:true,snapPerpendicular:false,snapTolerancePixel:14,exportScope:'full',printFrameBorder:false,exportBgMode:'white',exportBgColor:'#ffffff',exportStrokeMode:'original',exportStrokeColor:'#000000'},dxfImport:{acadVersion:acadVersion||'không khai báo',codepage:codepage||'không khai báo',encoding:encodingInfo.encoding||'không rõ',pairCount:pairs.length}};
+  return projectOut;
+}
+function loadDxfArrayBuffer(buffer,fileName){const decoded=decodeDxfArrayBuffer(buffer),p=parseDxfText(decoded.text,fileName,decoded);p.drawingBounds=null;const jsonName=String(fileName||'BanVe.dxf').replace(/\.dxf$/i,'')+'.dwgsketch.json';loadProjectObject(p,jsonName,true);updateProjectInfo(fileName);recalcBounds();fitView();const skipped=Object.values(p.unsupportedTypes||{}).reduce((a,b)=>a+b,0),details=Object.entries(p.unsupportedTypes||{}).map(([k,v])=>`${k}: ${v}`).join(', ');$('dxfImportInfo').textContent=`Đã đọc ${p.entities.length.toLocaleString('vi-VN')} đối tượng · ${p.visibleLayers.length} layer · ${p.dxfImport.acadVersion} · ${p.dxfImport.encoding}${skipped?` · bỏ qua ${skipped} (${details})`:''}`;status(`Đã mở DXF: ${p.entities.length.toLocaleString('vi-VN')} đối tượng hỗ trợ${skipped?`, bỏ qua ${skipped}`:''}.`)}
+
+function openFile(file){if(!file)return;if(!checkUnsaved())return;const name=String(file.name||'').toLowerCase(),isDxf=name.endsWith('.dxf');const r=new FileReader();r.onload=()=>{try{if(isDxf)loadDxfArrayBuffer(r.result,file.name);else loadProjectObject(JSON.parse(String(r.result)),file.name,true)}catch(err){console.error(err);alert('Không mở được file: '+err.message)}};r.onerror=()=>alert('Không đọc được file.');if(isDxf)r.readAsArrayBuffer(file);else r.readAsText(file,'utf-8')}
 function newProject(){if(!checkUnsaved())return;loadProjectObject(createBlankProject(),'BanVeMoi.dwgsketch.json',false);setDirty(true);status('Đã tạo bản vẽ mới 1000 × 700 đơn vị.')}
 function setTool(t){tool=t;document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool===t));preview=null;selectionBox=null;interaction=null;snapPoint=null;if(t==='mirror'&&!selected.length){status('Hãy chọn một hoặc nhiều đối tượng trước khi dùng Đối xứng.');tool='select';document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('active',b.dataset.tool==='select'))}else status({select:'Bấm để chọn; kéo vùng trống trái→phải = Window, phải→trái = Crossing.',selectRegion:'Chọn vùng độc lập: bắt đầu kéo ở bất kỳ vị trí nào; Ctrl/Shift để cộng thêm.',mirror:'Kéo hai điểm để xác định trục đối xứng.',pan:'Kéo để dịch chuyển bản vẽ.',text:'Bấm vị trí để đặt chữ.',line:'Kéo từ điểm đầu đến điểm cuối.',rectangle:'Kéo để tạo hình chữ nhật.',square:'Kéo để tạo hình vuông.',circle:'Bấm tâm và kéo bán kính.',arc:'Bấm tâm và kéo bán kính; dùng góc ở bảng phải.',ellipse:'Kéo theo khung bao elip.',frame:'Kéo để chọn khung xuất.'}[tool]||tool);draw()}
 function refFor(item,kind){return{item,kind}}
@@ -333,6 +434,8 @@ function command(cmd){
   else if(cmd==='PA'||cmd==='PASTE')pasteSelection();
   else if(cmd==='SAVE'||cmd==='SV')saveJson();
   else if(cmd==='DXF')exportDxf(false);
+  else if(cmd==='PNG')exportPng();
+  else if(cmd==='PDF')exportPdf();
   else if(cmd==='DWG')exportDxf(true);
   else if(cmd==='F'||cmd==='FIND'){layout.classList.remove('hide-left');$('textSearchInput').focus();$('textSearchInput').select();if($('textSearchInput').value.trim())runTextSearch()}
   else if(cmd==='FN'||cmd==='FINDNEXT')moveTextSearchResult(1);
@@ -443,8 +546,19 @@ canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('poin
 viewer.addEventListener('dragover',e=>{e.preventDefault();viewer.classList.add('dragging')});viewer.addEventListener('dragleave',()=>viewer.classList.remove('dragging'));viewer.addEventListener('drop',e=>{e.preventDefault();viewer.classList.remove('dragging');openFile(e.dataTransfer.files[0])});
 
 $('installPwaBtn').onclick=installPwa;$('checkUpdateBtn').onclick=()=>checkPwaVersion(true);$('panelCheckUpdateBtn').onclick=()=>checkPwaVersion(true);$('applyUpdateBtn').onclick=applyPwaUpdate;$('panelApplyUpdateBtn').onclick=applyPwaUpdate;$('pwaToastAction').onclick=applyPwaUpdate;$('saveUpdateUrlBtn').onclick=()=>{const value=$('updateUrlInput').value.trim()||'./version.json';localStorage.setItem(PWA_VERSION_URL_KEY,value);$('updateUrlInput').value=value;setUpdateInfo('Đã lưu địa chỉ kiểm tra phiên bản: '+value);};
+
+function closeMobilePanels(){layout.classList.add('hide-left','hide-right')}
+function showMobileSheet(show=true){$('mobileSheet').classList.toggle('show',show)}
+$('closeLeftPanelBtn').onclick=()=>layout.classList.add('hide-left');$('closeRightPanelBtn').onclick=()=>layout.classList.add('hide-right');
+$('mobileOpenBtn').onclick=()=>$('fileInput').click();$('mobileSelectBtn').onclick=()=>{setTool('select');closeMobilePanels()};$('mobilePanBtn').onclick=()=>{setTool('pan');closeMobilePanels()};$('mobileFindBtn').onclick=()=>{layout.classList.remove('hide-left');layout.classList.add('hide-right');setTimeout(()=>$('textSearchInput').focus(),80)};$('mobileLayerBtn').onclick=()=>{layout.classList.remove('hide-left');layout.classList.add('hide-right')};$('mobileMoreBtn').onclick=()=>showMobileSheet(true);$('mobileSheetCloseBtn').onclick=()=>showMobileSheet(false);$('mobileSheet').onclick=e=>{if(e.target===$('mobileSheet'))showMobileSheet(false)};
+document.querySelectorAll('[data-mobile-tool]').forEach(b=>b.onclick=()=>{setTool(b.dataset.mobileTool);showMobileSheet(false);closeMobilePanels()});document.querySelectorAll('[data-mobile-command]').forEach(b=>b.onclick=()=>{command(b.dataset.mobileCommand);showMobileSheet(false)});
+$('mobilePropertiesBtn').onclick=()=>{layout.classList.remove('hide-right');layout.classList.add('hide-left');showMobileSheet(false)};$('mobileCommandToggleBtn').onclick=()=>{$('commandInput').parentElement.classList.toggle('mobile-collapsed');showMobileSheet(false)};$('mobileUpdateBtn').onclick=()=>{checkPwaVersion(true);showMobileSheet(false)};
+
+
+if('launchQueue' in window){window.launchQueue.setConsumer(async launchParams=>{try{const handle=launchParams.files?.[0];if(handle){const file=await handle.getFile();openFile(file)}}catch(err){console.error(err);showPwaToast('Không mở được file được chuyển tới PWA.')}})}
+
 window.addEventListener('keydown',keyDown);window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
-if(window.matchMedia('(max-width:600px)').matches)layout.classList.add('hide-left','hide-right');initPwa();loadEmbedded();if(!project)loadProjectObject(createBlankProject(),'BanVeMoi.dwgsketch.json',false);setDirty(false);setTool('select');updateHistoryButtons();resize();
+if(window.matchMedia('(max-width:700px)').matches){layout.classList.add('hide-left','hide-right');$('commandInput').parentElement.classList.add('mobile-collapsed')}initPwa();loadEmbedded();if(!project)loadProjectObject(createBlankProject(),'BanVeMoi.dwgsketch.json',false);setDirty(false);setTool('select');updateHistoryButtons();resize();
 </script>
 </body>
 </html>
