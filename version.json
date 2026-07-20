@@ -1,6 +1,6 @@
 {
-  "version": "0.14.2",
-  "releasedAt": "2026-07-20T00:00:00Z",
-  "notes": "Bổ sung TRIM, EXTEND, DIM và MATCHPROP cho PWA/C#; tối ưu thao tác trên điện thoại.",
+  "version": "0.14.3",
+  "releasedAt": "2026-07-20T05:50:00Z",
+  "notes": "Đọc đúng màu DWG/DXF: ACI 1-255, TrueColor, BYLAYER theo bảng Layer và trạng thái Layer tắt; đồng bộ C# và PWA.",
   "downloadUrl": ""
 }
