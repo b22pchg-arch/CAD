@@ -2,7 +2,7 @@
   "id": "./",
   "name": "DWG Sketch PWA Editor 2D",
   "short_name": "DWG Sketch",
-  "description": "Mở, xem và chỉnh sửa trực tiếp dự án JSON hoặc bản vẽ DXF 2D trên máy tính và thiết bị di động.",
+  "description": "Mở, xem và chỉnh sửa DXF/JSON 2D với MOVE, TRIM, EXTEND, DIM và MATCHPROP trên máy tính và thiết bị di động.",
   "lang": "vi",
   "dir": "ltr",
   "start_url": "./index.html",
