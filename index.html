@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
-<title>DWG Sketch PWA Editor V0.14.3</title>
+<title>DWG Sketch PWA Editor V0.14.3.2</title>
 <style>
 :root{color-scheme:dark;--bg:#202124;--panel:#292a2d;--line:#45464a;--text:#f1f3f4;--muted:#aeb0b4;--accent:#4fc3f7;--orange:#ffb74d;--danger:#ef5350;--ok:#66bb6a}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);touch-action:none}
@@ -68,7 +68,7 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
   </div>
   <div class="tool-group"><button id="fitBtn">Zoom toàn bộ</button><button id="findTextBtn">Tìm chữ</button><button id="leftBtn">Layer</button><button id="rightBtn">Thuộc tính</button><button id="pngBtn">PNG</button><button id="printBtn">In</button><button id="pdfBtn">PDF</button><button id="dxfBtn">DXF</button></div>
   <div class="tool-group"><button id="installPwaBtn" class="install-hidden">Cài PWA</button><button id="checkUpdateBtn">Kiểm tra phiên bản</button><button id="applyUpdateBtn" class="install-hidden">Cập nhật ngay</button></div>
-  <span class="spacer"></span><span class="version-pill">PWA 0.14.3</span><span id="dirtyBadge" class="badge ok">Đã lưu</span>
+  <span class="spacer"></span><span class="version-pill">PWA 0.14.3.2</span><span id="dirtyBadge" class="badge ok">Đã lưu</span>
 </header>
 <main id="layout" class="layout">
   <aside class="panel left"><div class="mobile-panel-head"><b>Layer & tìm kiếm</b><button id="closeLeftPanelBtn">Đóng</button></div>
@@ -76,7 +76,7 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
     <div class="section"><h3>Layer</h3><div class="layer-actions"><button id="allLayersBtn">Tất cả</button><button id="noLayersBtn">Bỏ tất cả</button></div><div id="layerList"></div></div>
     <div class="section"><h3>Hiển thị và bắt điểm</h3>
       <label class="layer-row"><input id="overlayCheck" type="checkbox" checked> Lớp bổ sung</label>
-      <label class="layer-row"><input id="colorCheck" type="checkbox"> Dùng màu DWG</label>
+      <label class="layer-row"><input id="colorCheck" type="checkbox"> Dùng màu DWG/DXF</label>
       <label class="layer-row"><input id="frameCheck" type="checkbox" checked> Hiện khung xuất</label>
       <label class="layer-row"><input id="darkCheck" type="checkbox" checked> Nền tối</label>
       <label class="layer-row"><input id="snapCheck" type="checkbox" checked> Bắt điểm</label>
@@ -146,7 +146,7 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
 <div id="pwaToast" class="pwa-toast"><span id="pwaToastText"></span><button id="pwaToastAction" class="install-hidden">Cập nhật</button></div>
 <script>
 'use strict';
-const PWA_APP_VERSION='0.14.3';
+const PWA_APP_VERSION='0.14.3.2';
 const PWA_VERSION_URL_KEY='DwgSketchPwa.VersionUrl.V1';
 let deferredInstallPrompt=null,pwaRegistration=null,latestVersionInfo=null,reloadingForUpdate=false;
 function parseVersion(v){return String(v||'0').trim().replace(/^v/i,'').split(/[.-]/).map(x=>Number.parseInt(x,10)||0)}
@@ -247,6 +247,11 @@ function loadProjectObject(raw,name='Dự án JSON',markClean=true,resetHistory=
   bounds=validBounds(project.drawingBounds)?normalizeBounds(project.drawingBounds):computeBounds();
   selected=[];textSearchResults=[];textSearchIndex=-1;if($('textSearchResults'))$('textSearchResults').innerHTML='';if($('textSearchStatus'))$('textSearchStatus').textContent='Chưa tìm kiếm.';if(resetHistory){undoStack=[];redoStack=[];clipboard=[]}preview=null;snapPoint=null;
   currentFileName=normalizeFileName(name);
+  const sourceUsesCadColors=/DWG|DXF/i.test(String(project.sourceFormat||''));
+  $('colorCheck').checked=project.display?.useDwgColors===undefined?sourceUsesCadColors:!!project.display.useDwgColors;
+  $('darkCheck').checked=String(project.display?.exportBackground||'').toLowerCase()==='dark'||project.display?.darkBackground===true;
+  $('snapCheck').checked=project.display?.enableSnap!==false;
+  $('snapTolerance').value=Math.max(4,Math.min(50,num(project.display?.snapTolerancePixel,14)));
   $('exportScope').value=project.display?.exportScope==='frame'?'frame':'full';
   $('printFrameBorder').checked=!!project.display?.printFrameBorder;
   $('exportBgMode').value=project.display?.exportBgMode||'white';
@@ -362,9 +367,9 @@ function dxfMakePairs(text){
 function dxfRecord(pairs,start){const type=String(pairs[start]?.value||'').trim().toUpperCase();let i=start+1,data=[];while(i<pairs.length&&pairs[i].code!==0)data.push(pairs[i++]);return{type,data,next:i}}
 function dxfFirst(data,code,fallback=''){const p=data.find(x=>x.code===code);return p?p.value:fallback}
 function dxfAll(data,code){return data.filter(x=>x.code===code).map(x=>x.value)}
-function dxfNum(data,code,fallback=0){const n=Number(dxfFirst(data,code,''));return Number.isFinite(n)?n:fallback}
+function dxfNum(data,code,fallback=0){const p=data.find(x=>x.code===code);if(!p)return fallback;const raw=String(p.value??'').trim();if(raw==='')return fallback;const n=Number(raw);return Number.isFinite(n)?n:fallback}
 function dxfLayer(data){return String(dxfFirst(data,8,'0')).trim()||'0'}
-function dxfPackedRgb(data,code=420){const raw=Number(dxfFirst(data,code,''));return Number.isFinite(raw)?((0xff000000|(raw&0xffffff))>>>0):null}
+function dxfPackedRgb(data,code=420){const p=data.find(x=>x.code===code);if(!p)return null;const text=String(p.value??'').trim();if(text==='')return null;const raw=Number(text);return Number.isFinite(raw)?((0xff000000|(Math.trunc(raw)&0xffffff))>>>0):null}
 function dxfColorSpec(data){const tc=dxfPackedRgb(data,420),raw=Math.trunc(dxfNum(data,62,256));if(tc!==null)return{colorIndex:raw,trueColorArgb:tc,colorMethod:'TrueColor'};if(raw===0)return{colorIndex:0,trueColorArgb:null,colorMethod:'ByBlock'};if(raw===256)return{colorIndex:256,trueColorArgb:null,colorMethod:'ByLayer'};return{colorIndex:Math.abs(raw),trueColorArgb:null,colorMethod:'Aci'}}
 function dxfPolylinePoints(data){const pts=[];let current=null;for(const p of data){if(p.code===10){current={x:Number(p.value)||0,y:0};pts.push(current)}else if(p.code===20&&current)current.y=Number(p.value)||0}return pts}
 function dxfEllipseToPolyline(data){
@@ -406,7 +411,7 @@ function parseDxfText(text,fileName='BanVe.dxf',encodingInfo={}){
   const projectOut={projectType:'DwgSketchProject',version:4,savedAt:nowIso(),sourceFormat:'DXF ASCII',sourceFile:fileName,intermediateFile:null,unsupportedTypes:unsupported,layerStyles:[...layerStyles.values()],entities:entitiesOut,overlays:[],visibleLayers:visibleDxfLayers.length?visibleDxfLayers:layers,drawingBounds:null,exportRegion:null,display:{hideSmallText:false,minimumTextPixel:1,dwgTextScale:1,useDwgColors:true,exportBackground:'Dark',enableSnap:true,snapEndpoint:true,snapMidpoint:true,snapCenter:true,snapIntersection:true,snapPerpendicular:false,snapTolerancePixel:14,exportScope:'full',printFrameBorder:false,exportBgMode:'white',exportBgColor:'#ffffff',exportStrokeMode:'original',exportStrokeColor:'#000000'},dxfImport:{acadVersion:acadVersion||'không khai báo',codepage:codepage||'không khai báo',encoding:encodingInfo.encoding||'không rõ',pairCount:pairs.length}};
   return projectOut;
 }
-function loadDxfArrayBuffer(buffer,fileName){const decoded=decodeDxfArrayBuffer(buffer),p=parseDxfText(decoded.text,fileName,decoded);p.drawingBounds=null;const jsonName=String(fileName||'BanVe.dxf').replace(/\.dxf$/i,'')+'.dwgsketch.json';loadProjectObject(p,jsonName,true);updateProjectInfo(fileName);recalcBounds();fitView();const skipped=Object.values(p.unsupportedTypes||{}).reduce((a,b)=>a+b,0),details=Object.entries(p.unsupportedTypes||{}).map(([k,v])=>`${k}: ${v}`).join(', ');$('dxfImportInfo').textContent=`Đã đọc ${p.entities.length.toLocaleString('vi-VN')} đối tượng · ${p.visibleLayers.length} layer · ${p.dxfImport.acadVersion} · ${p.dxfImport.encoding}${skipped?` · bỏ qua ${skipped} (${details})`:''}`;status(`Đã mở DXF: ${p.entities.length.toLocaleString('vi-VN')} đối tượng hỗ trợ${skipped?`, bỏ qua ${skipped}`:''}.`)}
+function loadDxfArrayBuffer(buffer,fileName){const decoded=decodeDxfArrayBuffer(buffer),p=parseDxfText(decoded.text,fileName,decoded);p.drawingBounds=null;const jsonName=String(fileName||'BanVe.dxf').replace(/\.dxf$/i,'')+'.dwgsketch.json';loadProjectObject(p,jsonName,true);updateProjectInfo(fileName);recalcBounds();fitView();const skipped=Object.values(p.unsupportedTypes||{}).reduce((a,b)=>a+b,0),details=Object.entries(p.unsupportedTypes||{}).map(([k,v])=>`${k}: ${v}`).join(', '),trueColorCount=p.entities.filter(e=>e.trueColorArgb!==null&&e.trueColorArgb!==undefined).length,byLayerCount=p.entities.filter(e=>String(e.colorMethod||'').toLowerCase().includes('bylayer')||Number(e.colorIndex)===256).length;$('dxfImportInfo').textContent=`Đã đọc ${p.entities.length.toLocaleString('vi-VN')} đối tượng · ${p.visibleLayers.length} layer · màu lớp ${byLayerCount} · TrueColor ${trueColorCount} · ${p.dxfImport.acadVersion} · ${p.dxfImport.encoding}${skipped?` · bỏ qua ${skipped} (${details})`:''}`;status(`Đã mở DXF và bật màu CAD: ${p.entities.length.toLocaleString('vi-VN')} đối tượng${skipped?`, bỏ qua ${skipped}`:''}.`)}
 
 function openFile(file){if(!file)return;if(!checkUnsaved())return;const name=String(file.name||'').toLowerCase(),isDxf=name.endsWith('.dxf');const r=new FileReader();r.onload=()=>{try{if(isDxf)loadDxfArrayBuffer(r.result,file.name);else loadProjectObject(JSON.parse(String(r.result)),file.name,true)}catch(err){console.error(err);alert('Không mở được file: '+err.message)}};r.onerror=()=>alert('Không đọc được file.');if(isDxf)r.readAsArrayBuffer(file);else r.readAsText(file,'utf-8')}
 function newProject(){if(!checkUnsaved())return;loadProjectObject(createBlankProject(),'BanVeMoi.dwgsketch.json',false);setDirty(true);status('Đã tạo bản vẽ mới 1000 × 700 đơn vị.')}

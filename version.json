@@ -1,6 +1,6 @@
 {
-  "version": "0.14.3",
-  "releasedAt": "2026-07-20T05:50:00Z",
-  "notes": "Đọc đúng màu DWG/DXF: ACI 1-255, TrueColor, BYLAYER theo bảng Layer và trạng thái Layer tắt; đồng bộ C# và PWA.",
+  "version": "0.14.3.2",
+  "releasedAt": "2026-07-20T07:00:00Z",
+  "notes": "Sửa PWA đọc màu DXF: group code 420/62 vắng mặt không còn bị hiểu thành 0; tự bật màu CAD khi mở DXF/JSON màu.",
   "downloadUrl": ""
 }
