@@ -1,6 +1,6 @@
 {
-  "version": "0.14.10",
-  "releasedAt": "2026-07-22T13:00:00Z",
-  "notes": "Chọn theo nhiều loại và theo khung xuất; đồng bộ giải mã DXF với PWA; tăng đường chuyển DWG sang DXF.",
+  "version": "0.14.11",
+  "releasedAt": "2026-07-22T06:30:00Z",
+  "notes": "Sửa bố cục bộ lọc trên màn hình hẹp; C# ưu tiên DXF đồng hành cho DWG; sửa packed ACI và nạp trực tiếp font Unicode Windows.",
   "downloadUrl": ""
 }
