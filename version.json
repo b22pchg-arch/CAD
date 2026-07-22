@@ -1,6 +1,6 @@
 {
-  "version": "0.14.7",
+  "version": "0.14.9",
   "releasedAt": "2026-07-22T13:00:00Z",
-  "notes": "Đồng bộ gói với C# V0.14.7. PWA tiếp tục là chuẩn tham chiếu đọc DXF đủ màu và chữ Unicode.",
+  "notes": "Nhiều tab bản vẽ trong PWA; đồng bộ màu DWG JSON và font Unicode C#.",
   "downloadUrl": ""
 }
