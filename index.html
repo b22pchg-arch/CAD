@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
-<title>DWG Sketch PWA Editor V0.14.6</title>
+<title>DWG Sketch PWA Editor V0.14.7</title>
 <style>
 :root{color-scheme:dark;--bg:#202124;--panel:#292a2d;--line:#45464a;--text:#f1f3f4;--muted:#aeb0b4;--accent:#4fc3f7;--orange:#ffb74d;--danger:#ef5350;--ok:#66bb6a}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);touch-action:none}
@@ -70,7 +70,7 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
   </div>
   <div class="tool-group"><button id="fitBtn">Zoom toàn bộ</button><button id="findTextBtn">Tìm chữ</button><button id="leftBtn">Layer</button><button id="rightBtn">Thuộc tính</button><button id="pngBtn">PNG</button><button id="printBtn">In</button><button id="pdfBtn">PDF</button><button id="dxfBtn">DXF</button></div>
   <div class="tool-group"><button id="toolbarModeBtn" title="Chuyển thanh công cụ biểu tượng/có chữ">Biểu tượng</button><button id="installPwaBtn" class="install-hidden">Cài PWA</button><button id="checkUpdateBtn">Kiểm tra phiên bản</button><button id="applyUpdateBtn" class="install-hidden">Cập nhật ngay</button></div>
-  <span class="spacer"></span><span class="version-pill">PWA 0.14.6</span><span id="dirtyBadge" class="badge ok">Đã lưu</span>
+  <span class="spacer"></span><span class="version-pill">PWA 0.14.7</span><span id="dirtyBadge" class="badge ok">Đã lưu</span>
 </header>
 <main id="layout" class="layout">
   <aside class="panel left"><div class="mobile-panel-head"><b>Layer & tìm kiếm</b><button id="closeLeftPanelBtn">Đóng</button></div>
@@ -126,7 +126,7 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
     </div>
     <div class="section"><h3>Đọc DXF trực tiếp</h3><div class="muted">Hỗ trợ DXF ASCII 2D: LINE, POLYLINE/LWPOLYLINE, CIRCLE, ARC, ELLIPSE, TEXT và MTEXT. Các đối tượng chưa hỗ trợ được thống kê nhưng không làm dừng việc mở file.</div><div id="dxfImportInfo" class="update-info muted" style="margin-top:7px">Chưa mở DXF.</div><div class="button-row"><a class="button" href="./sample_dxf_r12_unicode.dxf" download>DXF mẫu</a></div></div>
     <div class="section"><h3>PWA và cập nhật</h3>
-      <div class="muted">Phiên bản đang dùng: <b id="currentVersionText">0.14.6</b></div>
+      <div class="muted">Phiên bản đang dùng: <b id="currentVersionText">0.14.7</b></div>
       <div class="form-grid" style="margin-top:7px"><label class="full">Địa chỉ version.json<input id="updateUrlInput" value="./version.json" autocomplete="off"></label></div>
       <div class="button-row"><button id="saveUpdateUrlBtn">Lưu địa chỉ</button><button id="panelCheckUpdateBtn">Kiểm tra</button><button id="panelApplyUpdateBtn" class="install-hidden">Cập nhật</button></div>
       <div id="updateInfo" class="update-info muted">Chưa kiểm tra phiên bản.</div>
@@ -177,7 +177,7 @@ button,.button,input,select,textarea{font:inherit}.toolbar button,.button,.small
 <div id="pwaToast" class="pwa-toast"><span id="pwaToastText"></span><button id="pwaToastAction" class="install-hidden">Cập nhật</button></div>
 <script>
 'use strict';
-const PWA_APP_VERSION='0.14.6';
+const PWA_APP_VERSION='0.14.7';
 const PWA_VERSION_URL_KEY='DwgSketchPwa.VersionUrl.V1';
 let deferredInstallPrompt=null,pwaRegistration=null,latestVersionInfo=null,reloadingForUpdate=false;
 function parseVersion(v){return String(v||'0').trim().replace(/^v/i,'').split(/[.-]/).map(x=>Number.parseInt(x,10)||0)}
