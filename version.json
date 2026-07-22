@@ -1,6 +1,6 @@
 {
-  "version": "0.14.3.2",
-  "releasedAt": "2026-07-20T07:00:00Z",
-  "notes": "Sửa PWA đọc màu DXF: group code 420/62 vắng mặt không còn bị hiểu thành 0; tự bật màu CAD khi mở DXF/JSON màu.",
+  "version": "0.14.4",
+  "releasedAt": "2026-07-22T01:30:00Z",
+  "notes": "Thanh công cụ biểu tượng có thể chuyển về dạng chữ; bộ lọc chọn theo loại đối tượng áp dụng cho bấm chọn và chọn vùng; có chọn ngoài chữ và chọn All.",
   "downloadUrl": ""
 }
