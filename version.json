@@ -1,6 +1,6 @@
 {
-  "version": "0.14.4",
-  "releasedAt": "2026-07-22T01:30:00Z",
-  "notes": "Thanh công cụ biểu tượng có thể chuyển về dạng chữ; bộ lọc chọn theo loại đối tượng áp dụng cho bấm chọn và chọn vùng; có chọn ngoài chữ và chọn All.",
+  "version": "0.14.5",
+  "releasedAt": "2026-07-22T03:00:00Z",
+  "notes": "Enter hoặc phím cách chạy lệnh; chọn liên kết hình học và chữ trong toàn bản vẽ, khung xuất hoặc vùng chọn gần nhất.",
   "downloadUrl": ""
 }
