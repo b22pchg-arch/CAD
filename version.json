@@ -1,6 +1,6 @@
 {
-  "version": "0.14.5",
+  "version": "0.14.6",
   "releasedAt": "2026-07-22T03:00:00Z",
-  "notes": "Enter hoặc phím cách chạy lệnh; chọn liên kết hình học và chữ trong toàn bản vẽ, khung xuất hoặc vùng chọn gần nhất.",
+  "notes": "COPY theo điểm gốc/điểm đích; MATCHPROP hỗ trợ bấm từng đích hoặc kéo vùng Window/Crossing.",
   "downloadUrl": ""
 }
